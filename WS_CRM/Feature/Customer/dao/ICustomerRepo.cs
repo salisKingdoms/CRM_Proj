@@ -11,5 +11,6 @@ namespace WS_CRM.Feature.Customer.dao
     {
         public Task<IEnumerable<Customers>> RepoGetAllCustomer();
         public Task CreateCustomer(CreateCustomerRequest request);
+        public Task<Customers> GetCustomerById(long id);
     }
 }

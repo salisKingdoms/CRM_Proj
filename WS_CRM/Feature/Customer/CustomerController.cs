@@ -64,5 +64,28 @@ namespace WS_CRM.Feature.Customer
             }
             return Ok(result);
         }
+
+        [HttpGet]
+        [Route("GetDetailCustomerbyId")]
+        public async Task<IActionResult> GetDetailCustomerbyId(long id)
+        {
+            var result = new APIResultList<Customers>();
+            try
+            {
+                if (id > 0)
+                {
+                    var data = await _customerDao.GetCustomerById(id);
+                    result.data = data;
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to submit, please contact administrator";
+            }
+            return Ok(result);
+        }
     }
 }

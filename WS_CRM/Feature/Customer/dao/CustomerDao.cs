@@ -26,6 +26,11 @@ namespace WS_CRM.Feature.Customer.dao
         {
              await _custRepository.CreateCustomer(request);
         }
+        public async Task<Customers> GetCustomerById(long id)
+        {
+           
+            return await _custRepository.GetCustomerById(id);
+        }
 
         //public async Task<User> GetById(int id)
         //{

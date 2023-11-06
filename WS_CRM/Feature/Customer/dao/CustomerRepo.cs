@@ -58,14 +58,16 @@ namespace WS_CRM.Feature.Customer.dao
             await connection.ExecuteAsync(sql, param);
         }
 
-        //public async Task Create(User user)
-        //{
-        //    using var connection = _context.CreateConnection();
-        //    var sql = """
-        //    INSERT INTO Users (Title, FirstName, LastName, Email, Role, PasswordHash)
-        //    VALUES (@Title, @FirstName, @LastName, @Email, @Role, @PasswordHash)
-        //""";
-        //    await connection.ExecuteAsync(sql, user);
-        //}
+        public async Task<Customers> GetCustomerById(long id)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = " select * from ws_customer where id=@id";
+            var param = new Dictionary<string, object>
+            {
+                { "id", id  },
+               
+            };
+            return await connection.QuerySingleOrDefaultAsync<Customers>(sql, param);
+        }
     }
 }
