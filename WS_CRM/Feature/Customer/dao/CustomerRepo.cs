@@ -33,15 +33,15 @@ namespace WS_CRM.Feature.Customer.dao
         public async Task<IEnumerable<Customers>> RepoGetAllCustomer()
         {
             using var connection = _context.CreateConnection();
-            var sql = " SELECT * FROM Customers";
+            var sql = " SELECT * FROM ws_customer";
             return await connection.QueryAsync<Customers>(sql);
         }
 
         public async Task CreateCustomer(CreateCustomerRequest request)
         {
             using var connection = _context.CreateConnection();
-            var sql = " INSERT INTO Customers"+
-                        "(id,name, email, phone, address, is_member, created_by, created_on, modified_by, modified_on)"+
+            var sql = " INSERT INTO ws_customer" +
+                        "(name, email, phone, address, is_member, created_by, created_on, modified_by, modified_on)" +
                         "VALUES (@name, @email,@phone,@addres,@is_member,@created_by,@created_on,@modified_by,@modified_on)";
             var param = new Dictionary<string, object>
             {

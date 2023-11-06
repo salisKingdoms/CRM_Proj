@@ -20,9 +20,10 @@ namespace WS_CRM.Feature.Customer
         {
             _customerDao = custDao;
         }
+
         [HttpGet]
         [Route("GetCustomerList")]
-        //roducesResponseType(typeof(apir
+       
         public async Task<IActionResult> GetCustomersList()
         {
             var result = new APIResultList<List<Customers>>();
@@ -40,6 +41,28 @@ namespace WS_CRM.Feature.Customer
             
             return Ok(result);
 
+        }
+
+        [HttpPost]
+        [Route("CreateCustomer")]
+        public async Task<IActionResult> CreateCustomer (CreateCustomerRequest request)
+        {
+            var result = new APIResultList<List<Customers>>();
+            try
+            {
+                if(request != null)
+                {
+                    await _customerDao.CreateCustomer(request);
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to submit, please contact administrator";
+            }
+            return Ok(result);
         }
     }
 }
