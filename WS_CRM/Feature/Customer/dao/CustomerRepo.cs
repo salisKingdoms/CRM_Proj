@@ -69,5 +69,17 @@ namespace WS_CRM.Feature.Customer.dao
             };
             return await connection.QuerySingleOrDefaultAsync<Customers>(sql, param);
         }
+
+        public async Task DeleteCustomerById(long id)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = " delete from ws_customer where id=@id";
+            var param = new Dictionary<string, object>
+            {
+                { "id", id  },
+
+            };
+            await connection.ExecuteAsync(sql, param);
+        }
     }
 }

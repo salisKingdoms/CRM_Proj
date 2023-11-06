@@ -87,5 +87,28 @@ namespace WS_CRM.Feature.Customer
             }
             return Ok(result);
         }
+
+        //public async Task DeleteCustomerById(long id)
+        [HttpDelete]
+        [Route("DeleteCustomerbyId")]
+        public async Task<IActionResult> DeleteCustomerbyId(long id)
+        {
+            var result = new APIResultList<Customers>();
+            try
+            {
+                if (id > 0)
+                {
+                    await _customerDao.del(request);
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to submit, please contact administrator";
+            }
+            return Ok(result);
+        }
     }
 }

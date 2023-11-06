@@ -31,6 +31,11 @@ namespace WS_CRM.Feature.Customer.dao
            
             return await _custRepository.GetCustomerById(id);
         }
+        public async Task DeleteCustomerById(long id)
+        {
+
+            await _custRepository.DeleteCustomerById(id);
+        }
 
         //public async Task<User> GetById(int id)
         //{
