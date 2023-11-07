@@ -36,7 +36,16 @@ namespace WS_CRM.Feature.Customer.dao
 
             await _custRepository.DeleteCustomerById(id);
         }
+        public async Task UpdateCustomer(Customers data)
+        {
+            await _custRepository.UpdateCustomer(data);
+        }
+        public async Task<int> GetTotalAllCustomer()
+        {
 
+            return await _custRepository.RepoGetTotalAllCustomer();
+        }
+        
         //public async Task<User> GetById(int id)
         //{
         //    using var connection = _context.CreateConnection();

@@ -3,6 +3,7 @@ using WS_CRM.Feature.Customer.dao;
 using WS_CRM.Config;
 using WS_CRM.Feature.Customer.dto;
 using WS_CRM.Feature.Customer.Model;
+using WS_CRM.Helper;
 
 namespace WS_CRM.Feature.Customer
 {
@@ -30,9 +31,11 @@ namespace WS_CRM.Feature.Customer
             try
             {
                 var data = await _customerDao.GetAll();
+                var totalData = await _customerDao.GetTotalAllCustomer();
                 result.is_ok=true;
                 result.message = "Success";
                 result.data = data.ToList();
+                result.totalRow = totalData;
             }
             catch (Exception ex)
             {
@@ -98,7 +101,7 @@ namespace WS_CRM.Feature.Customer
             {
                 if (id > 0)
                 {
-                    await _customerDao.del(request);
+                    await _customerDao.DeleteCustomerById(id);
                     result.is_ok = true;
                     result.message = "Success";
                 }
@@ -106,7 +109,31 @@ namespace WS_CRM.Feature.Customer
             catch (Exception ex)
             {
                 result.is_ok = false;
-                result.message = "Data failed to submit, please contact administrator";
+                result.message = "Data failed to delete, please contact administrator";
+            }
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [Route("UpdateCustomer")]
+        public async Task<IActionResult> UpdateCustomer(UpdateCustomerRequest data)
+        {
+            var result = new APIResultList<Customers>();
+            try
+            {
+                if (data != null && data.id > 0)
+                {
+                    var cust = HelperObj.convert<UpdateCustomerRequest,Customers>(data);
+                    //cust.modified_on = data.modified_on;
+                    await _customerDao.UpdateCustomer(cust);
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to update, please contact administrator";
             }
             return Ok(result);
         }
