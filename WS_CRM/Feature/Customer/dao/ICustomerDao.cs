@@ -13,10 +13,11 @@ namespace WS_CRM.Feature.Customer.dao
     public interface ICustomerDao
     {
         Task<IEnumerable<Customers>> GetAll();
-        //Task<User> GetById(int id);
-        //Task<User> GetByEmail(string email);
-        //Task Create(User user);
-        //Task Update(User user);
-        //Task Delete(int id);
+        public Task CreateCustomer(CreateCustomerRequest request);
+        public Task<Customers> GetCustomerById(long id);
+        public Task DeleteCustomerById(long id);
+        public Task UpdateCustomer(Customers data);
+        public Task<int> GetTotalAllCustomer();
+        //tes
     }
 }
