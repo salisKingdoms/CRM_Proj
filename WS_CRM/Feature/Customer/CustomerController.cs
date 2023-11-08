@@ -137,5 +137,32 @@ namespace WS_CRM.Feature.Customer
             }
             return Ok(result);
         }
+
+        [HttpPost]
+        [Route("CreateMember")]
+        public async Task<IActionResult> CreateMember(CreateMembersRequest request)
+        {
+            var result = new APIResultList<List<Members>>();
+            try
+            {
+                if (request != null)
+                {
+                    var cust_id = await _customerDao.CreateMember(request);
+                    if(cust_id > 0)
+                    {
+                        int id_cust = Convert.ToInt32(cust_id);
+                        var UpCustomerMember =  _customerDao.UpdateMemberCustomer(id_cust);
+                    }
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to submit, please contact administrator";
+            }
+            return Ok(result);
+        }
     }
 }

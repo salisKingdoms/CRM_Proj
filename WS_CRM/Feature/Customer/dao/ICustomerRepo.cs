@@ -1,9 +1,10 @@
-﻿using System.Linq;
-using Dapper;
+﻿
 //ing WebApi.Entities;
 using WS_CRM.Helper;
 using WS_CRM.Feature.Customer.dto;
 using WS_CRM.Feature.Customer.Model;
+using System.Linq;
+using Dapper;
 
 namespace WS_CRM.Feature.Customer.dao
 {
@@ -15,5 +16,10 @@ namespace WS_CRM.Feature.Customer.dao
         public Task DeleteCustomerById(long id);
         public Task UpdateCustomer(Customers cust);
         public Task<int> RepoGetTotalAllCustomer();
+
+        #region member
+        public Task<long> CreateMember(CreateMembersRequest request);
+        public Task UpdateMemberCustomer(int cust_id);
+        #endregion
     }
 }
