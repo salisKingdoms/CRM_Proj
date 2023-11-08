@@ -65,7 +65,8 @@ namespace WS_CRM.Feature.Customer.dao
                 { "modified_by",null },
                 { "modified_on",null}
             };
-            await connection.ExecuteAsync(sql, param);
+             await connection.ExecuteAsync(sql, param);
+            
         }
 
         public async Task<Customers> GetCustomerById(long id)
@@ -106,6 +107,49 @@ namespace WS_CRM.Feature.Customer.dao
                 modified_on = @modified_on
             WHERE id = @id";
             await connection.ExecuteAsync(sql, cust);
+        }
+
+        public async Task UpdateMemberCustomer(int cust_id)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = @"
+            UPDATE ws_customer 
+            SET 
+                is_member = true, 
+                modified_by = @modified_by,
+                modified_on = @modified_on
+            WHERE id = @id";
+
+            var param = new Dictionary<string, object>
+            {
+                { "cust_id", cust_id },
+                { "modified_by","sys" },
+                { "modified_on",DateTime.UtcNow}
+            };
+            await connection.ExecuteAsync(sql, param);
+        }
+
+        public async Task<long> CreateMember(CreateMembersRequest request)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = " INSERT INTO ws_member" +
+                        "(cust_id, user_name, password, created_by, created_on, modified_by,modified_on)" +
+                        "VALUES (@cust_id,@user_name,@password,@created_by,@created_on,@modified_by,@modified_on)" +
+                        " RETURNING cust_id;";
+            var param = new Dictionary<string, object>
+            {
+                { "cust_id", request.customer_id  },
+                { "user_name", request.user_name ?? "" },
+                { "password", request.password ?? "" },
+                { "created_by", "user" },
+                { "created_on", DateTime.UtcNow },
+                { "modified_by",null },
+                { "modified_on",null}
+            };
+            var datas = await  connection.ExecuteScalarAsync<long>(sql, param);
+
+            return datas;
+
         }
     }
 }
