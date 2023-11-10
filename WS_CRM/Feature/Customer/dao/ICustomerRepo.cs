@@ -20,6 +20,7 @@ namespace WS_CRM.Feature.Customer.dao
         #region member
         public Task<long> CreateMember(CreateMembersRequest request);
         public Task UpdateMemberCustomer(int cust_id);
+        public Task DeleteMemberCustomer(int cust_id);
         #endregion
     }
 }

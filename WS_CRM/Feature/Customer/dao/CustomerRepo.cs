@@ -133,8 +133,8 @@ namespace WS_CRM.Feature.Customer.dao
         {
             using var connection = _context.CreateConnection();
             var sql = " INSERT INTO ws_member" +
-                        "(cust_id, user_name, password, created_by, created_on, modified_by,modified_on)" +
-                        "VALUES (@cust_id,@user_name,@password,@created_by,@created_on,@modified_by,@modified_on)" +
+                        "(cust_id, user_name, password, created_by, created_on, modified_by,modified_on,is_active)" +
+                        "VALUES (@cust_id,@user_name,@password,@created_by,@created_on,@modified_by,@modified_on,@is_active)" +
                         " RETURNING cust_id;";
             var param = new Dictionary<string, object>
             {
@@ -144,12 +144,38 @@ namespace WS_CRM.Feature.Customer.dao
                 { "created_by", "user" },
                 { "created_on", DateTime.UtcNow },
                 { "modified_by",null },
-                { "modified_on",null}
+                { "modified_on",null},
+                { "is_active",true }
             };
             var datas = await  connection.ExecuteScalarAsync<long>(sql, param);
 
             return datas;
+        }
 
+        public async Task DeleteMemberCustomer(int cust_id)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = @"
+            UPDATE ws_member 
+            SET 
+                is_active = false,
+                modified_by = @modified_by,
+                modified_on = @modified_on
+            WHERE id = @id
+
+            UPDATE ws_customer
+            SET
+                is_member = false,
+                modified_by = @modified_by,
+                modified_on = @modified_on
+            WHERE id = @id";
+
+            var param = new Dictionary<string, object>
+            {
+                { "modified_by","sys" },
+                { "modified_on",DateTime.UtcNow}
+            };
+            await connection.ExecuteAsync(sql, param);
         }
     }
 }

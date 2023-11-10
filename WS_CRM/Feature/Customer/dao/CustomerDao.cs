@@ -56,6 +56,10 @@ namespace WS_CRM.Feature.Customer.dao
 
             await _custRepository.UpdateMemberCustomer(cust_id);
         }
+        public async Task DeleteMemberCustomer(int cust_id)
+        {
+            await _custRepository.DeleteMemberCustomer(cust_id);
+        }
         #endregion
 
     }
