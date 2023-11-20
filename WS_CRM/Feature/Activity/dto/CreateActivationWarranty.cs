@@ -1,8 +1,8 @@
-﻿namespace WS_CRM.Feature.Activity.Model
+﻿namespace WS_CRM.Feature.Activity.dto
 {
-    public class ws_warranty
+    public class CreateActivationWarranty
     {
-        public long? id { get; set; }
+        public long id { get; set; }
         public string warranty_no { get; set; }
         public string company_code { get; set; }
         public string receipt_no { get; set; }
@@ -19,12 +19,5 @@
         public bool active { get; set; }
         public string created_by { get; set; }
         public DateTime? created_on { get; set; }
-        public string modified_by { get; set; }
-        public DateTime? modified_on { get; set; }
-        public string warranty_code { get; set; }
-        public DateTime? replace_expired_date { get; set; }
-        public DateTime? spare_expired_date { get; set; }
-        public DateTime? service_expired_date { get; set; }
-
     }
 }
