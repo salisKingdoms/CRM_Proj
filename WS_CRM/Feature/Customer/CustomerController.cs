@@ -11,11 +11,6 @@ namespace WS_CRM.Feature.Customer
     [Route("[controller]")]
     public class CustomerController : Controller
     {
-        //public IActionResult Index()
-        //{
-        //    return View();
-        //}
-        //ivate IUserService _userService;
         ICustomerDao _customerDao;
         public CustomerController(ICustomerDao custDao)
         {
@@ -153,6 +148,29 @@ namespace WS_CRM.Feature.Customer
                         int id_cust = Convert.ToInt32(cust_id);
                         var UpCustomerMember =  _customerDao.UpdateMemberCustomer(id_cust);
                     }
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to submit, please contact administrator";
+            }
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        [Route("DeleteMember")]
+        public async Task<IActionResult> DeleteMember(long cust_id)
+        {
+            var result = new APIResultList<List<Members>>();
+            try
+            {
+                if (cust_id > 0)
+                {
+                    int customerId = Convert.ToInt32(cust_id);
+                    var del_member= _customerDao.DeleteMemberCustomer(customerId);
                     result.is_ok = true;
                     result.message = "Success";
                 }

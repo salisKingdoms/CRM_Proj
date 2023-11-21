@@ -10,5 +10,6 @@
         public DateTime created_on { get; set; }
         public string modofied_by { get; set; }
         public DateTime modified_on { get; set; }
+        public bool is_active { get; set; }
     }
 }
