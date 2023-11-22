@@ -22,9 +22,6 @@
         public string modified_by { get; set; }
         public DateTime? modified_on { get; set; }
         public string warranty_code { get; set; }
-        public DateTime? replace_expired_date { get; set; }
-        public DateTime? spare_expired_date { get; set; }
-        public DateTime? service_expired_date { get; set; }
 
     }
 }

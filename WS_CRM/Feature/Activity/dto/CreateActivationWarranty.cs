@@ -2,7 +2,6 @@
 {
     public class CreateActivationWarranty
     {
-        public long id { get; set; }
         public string warranty_no { get; set; }
         public string company_code { get; set; }
         public string receipt_no { get; set; }
@@ -19,5 +18,6 @@
         public bool active { get; set; }
         public string created_by { get; set; }
         public DateTime? created_on { get; set; }
+        public string warranty_code { get; set; }
     }
 }

@@ -7,15 +7,23 @@ namespace WS_CRM.Helper
     public class DataContext
     {
         private DbSettings _dbSettings;
+        private DbSettingsAct _dbSettingsAct;
 
-        public DataContext(IOptions<DbSettings> dbSettings)
+        public DataContext(IOptions<DbSettings> dbSettings, IOptions<DbSettingsAct> dbSetAct)
         {
             _dbSettings = dbSettings.Value;
+            _dbSettingsAct = dbSetAct.Value;
         }
 
         public IDbConnection CreateConnection()
         {
             var connectionString = $"Host={_dbSettings.Server}; Database={_dbSettings.Database}; Username={_dbSettings.UserId}; Password={_dbSettings.Password};";
+            return new NpgsqlConnection(connectionString);
+        }
+
+        public IDbConnection ConnectionActivity()
+        {
+            var connectionString = $"Host={_dbSettingsAct.Server}; Database={_dbSettingsAct.Database}; Username={_dbSettingsAct.UserId}; Password={_dbSettingsAct.Password};";
             return new NpgsqlConnection(connectionString);
         }
 
