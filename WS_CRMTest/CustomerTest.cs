@@ -1,0 +1,33 @@
+using WS_CRM.Config;
+using WS_CRM.Feature.Customer;
+using WS_CRM.Feature.Customer.dao;
+using WS_CRM.Feature.Customer.dto;
+using WS_CRM.Feature.Customer.Model;
+using Moq;
+
+namespace WS_CRMTest
+{
+    public class CustomerTest
+    {
+        public CustomerController controller;
+        private Mock<ICustomerDao> custDao;
+        public WS_CRM.Config.AppConfig appConfig;
+
+        private int expected = 200;
+        private string dummyT = "test";
+        private string userNIP = "12345";
+
+        public CustomerTest()
+        {
+            custDao = new Mock<ICustomerDao>();
+            custDao.CallBase = true;
+            appConfig = new WS_CRM.Config.AppConfig();
+        }
+
+        [Fact]
+        public void GetListCustomer()
+        {
+            //var sample = new 
+        }
+    }
+}
