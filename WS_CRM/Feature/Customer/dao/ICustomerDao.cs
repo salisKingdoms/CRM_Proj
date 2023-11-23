@@ -12,7 +12,8 @@ namespace WS_CRM.Feature.Customer.dao
 {
     public interface ICustomerDao
     {
-        Task<IEnumerable<Customers>> GetAll();
+        public Task<List<Customers>> GetAll();
+        //public Task<IEnumerable<Customers>> GetAll();
         public Task CreateCustomer(CreateCustomerRequest request);
         public Task<Customers> GetCustomerById(long id);
         public Task DeleteCustomerById(long id);

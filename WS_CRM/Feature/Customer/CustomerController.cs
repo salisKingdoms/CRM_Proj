@@ -19,7 +19,7 @@ namespace WS_CRM.Feature.Customer
 
         [HttpGet]
         [Route("GetCustomerList")]
-       
+     // [ProducesResponseType(typeof(APIResult<List<Customer>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCustomersList()
         {
             var result = new APIResultList<List<Customers>>();

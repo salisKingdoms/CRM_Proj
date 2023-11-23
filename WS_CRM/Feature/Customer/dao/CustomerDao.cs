@@ -18,7 +18,7 @@ namespace WS_CRM.Feature.Customer.dao
             _custRepository = custRepo;
             _mapper = mapper;
         }
-        public async Task<IEnumerable<Customers>> GetAll()
+        public async Task<List<Customers>> GetAll()
         {
             return await _custRepository.RepoGetAllCustomer();
         }

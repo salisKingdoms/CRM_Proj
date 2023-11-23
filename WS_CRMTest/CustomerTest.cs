@@ -4,6 +4,7 @@ using WS_CRM.Feature.Customer.dao;
 using WS_CRM.Feature.Customer.dto;
 using WS_CRM.Feature.Customer.Model;
 using Moq;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WS_CRMTest
 {
@@ -25,9 +26,18 @@ namespace WS_CRMTest
         }
 
         [Fact]
-        public void GetListCustomer()
+        public async void GetListCustomer()
         {
             //var sample = new 
+            custDao.Setup(x => x.GetAll()).ThrowsAsync(new Exception("Test excception"));
+            var exception = await Assert.ThrowsAsync<Exception>(() => controller.GetCustomersList());
+            Assert.Equal("test exception", exception.Message);
+
+            var sample = new IEnumerable<Customers>();
+            custDao.Setup(x => x.GetAll()).Returns(Task.FromResult(sample));
+            var res = (OkObjectResult)controller.GetCustomersList().Result;
+            Assert.Equal(expected, res.StatusCode);
+
         }
     }
 }
