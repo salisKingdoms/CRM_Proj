@@ -35,7 +35,7 @@ namespace WS_CRM.Feature.Customer.dao
             var query = isList ? "SELECT * FROM ws_customer" :"SELECT COUNT (*) AS JUMLAH FROM ws_customer" ;
             return query;
         }
-        public async Task<List<Customers>> RepoGetAllCustomer()
+        public async Task<IEnumerable<Customers>> RepoGetAllCustomer()
         {
             using var connection = _context.CreateConnection();
             var sql = QueryListCustomer(true);

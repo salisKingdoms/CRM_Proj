@@ -20,7 +20,8 @@ namespace WS_CRM.Feature.Customer.dao
         }
         public async Task<List<Customers>> GetAll()
         {
-            return await _custRepository.RepoGetAllCustomer();
+            var data = _custRepository.RepoGetAllCustomer().Result.ToList();
+            return data;
         }
         public async Task CreateCustomer(CreateCustomerRequest request)
         {

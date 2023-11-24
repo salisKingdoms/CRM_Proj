@@ -10,7 +10,7 @@ namespace WS_CRM.Feature.Customer.dao
 {
     public interface ICustomerRepo
     {
-        public Task<List<Customers>> RepoGetAllCustomer();
+        public Task<IEnumerable<Customers>> RepoGetAllCustomer();
         public Task CreateCustomer(CreateCustomerRequest request);
         public Task<Customers> GetCustomerById(long id);
         public Task DeleteCustomerById(long id);
