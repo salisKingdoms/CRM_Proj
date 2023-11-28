@@ -37,16 +37,14 @@ namespace WS_CRM.Feature.Activity.dao
             try
             {
                 var sql = " INSERT INTO ws_warranty" +
-                        "(warranty_no, company_code, receipt_no, receipt_date, invoice_no, invoice_date, article_code, article_name, serial_no, start_date,end_date,activate_by,activate_on,active,created_by,created_on,modified_by,modified_on,warranty_code" +
+                        "(warranty_no, company_code, invoice_no, invoice_date, article_code, article_name, serial_no, start_date,end_date,activate_by,activate_on,active,created_by,created_on,modified_by,modified_on,warranty_code" +
                         ")" +
-                        "VALUES (@warranty_no, @company_code, @receipt_no, @receipt_date, @invoice_no, @invoice_date, @article_code, @article_name, @serial_no, @start_date,@end_date,@activate_by,@activate_on,@active,@created_by,@created_on,@modified_by,@modified_on,@warranty_code" +
+                        "VALUES (@warranty_no, @company_code, @invoice_no, @invoice_date, @article_code, @article_name, @serial_no, @start_date,@end_date,@activate_by,@activate_on,@active,@created_by,@created_on,@modified_by,@modified_on,@warranty_code" +
                         ")";
                 var param = new Dictionary<string, object>
             {
                 { "warranty_no", request.warranty_no ?? "" },
                 { "company_code", request.company_code ?? "" },
-                { "receipt_no", request.receipt_no ?? "" },
-                { "receipt_date", request.receipt_date ?? null },
                 { "invoice_no", request.invoice_no },
                 { "invoice_date", request.invoice_date ?? null },
                 { "article_code", request.article_code ?? "" },

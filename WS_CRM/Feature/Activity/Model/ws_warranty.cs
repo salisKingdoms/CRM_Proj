@@ -5,8 +5,6 @@
         public long? id { get; set; }
         public string warranty_no { get; set; }
         public string company_code { get; set; }
-        public string receipt_no { get; set; }
-        public DateTime? receipt_date { get; set; }
         public string invoice_no { get; set; }
         public DateTime? invoice_date { get; set; }
         public string article_code { get; set; }

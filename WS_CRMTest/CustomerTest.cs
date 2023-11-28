@@ -30,16 +30,11 @@ namespace WS_CRMTest
         [Fact]
         public async void GetListCustomer()
         {
-            //var sample = new 
-            //custDao.Setup(x => x.GetAll()).ThrowsAsync(new Exception("Test excception"));
-            //var exception = await Assert.ThrowsAsync<Exception>(() => controller.GetCustomersList());
-            //Assert.Equal("test exception", exception.Message);
+            //var sample = new List<Customers>();
 
-            var sample = new List<Customers>();
-            //custDao.Setup(x => x.GetAll()).Returns(Task.FromResult(sample));
             var res = (OkObjectResult)controller.GetCustomersList().Result;
             Assert.Equal(expected, res.StatusCode);
-            //tes
+
         }
     }
 }
