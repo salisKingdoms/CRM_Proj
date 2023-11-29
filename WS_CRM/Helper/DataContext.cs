@@ -8,11 +8,13 @@ namespace WS_CRM.Helper
     {
         private DbSettings _dbSettings;
         private DbSettingsAct _dbSettingsAct;
+        private DbCatalogue _dbCatalogue;   
 
-        public DataContext(IOptions<DbSettings> dbSettings, IOptions<DbSettingsAct> dbSetAct)
+        public DataContext(IOptions<DbSettings> dbSettings, IOptions<DbSettingsAct> dbSetAct,IOptions<DbCatalogue> dbCatalogue)
         {
             _dbSettings = dbSettings.Value;
             _dbSettingsAct = dbSetAct.Value;
+            _dbCatalogue = dbCatalogue.Value;
         }
 
         public IDbConnection CreateConnection()
@@ -24,6 +26,11 @@ namespace WS_CRM.Helper
         public IDbConnection ConnectionActivity()
         {
             var connectionString = $"Host={_dbSettingsAct.Server}; Database={_dbSettingsAct.Database}; Username={_dbSettingsAct.UserId}; Password={_dbSettingsAct.Password};";
+            return new NpgsqlConnection(connectionString);
+        }
+        public IDbConnection ConnectionCatalogue()
+        {
+            var connectionString = $"Host={_dbCatalogue.Server}; Database={_dbCatalogue.Database}; Username={_dbCatalogue.UserId}; Password={_dbCatalogue.Password};";
             return new NpgsqlConnection(connectionString);
         }
 
