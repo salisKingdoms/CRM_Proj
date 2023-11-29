@@ -17,5 +17,11 @@ namespace WS_CRM.Feature.Catalog.dao
         public Task<ms_product> GetProductById(long id);
         public Task DeleteProductById(long id);
         public Task UpdateProduct(ms_product param);
+        public Task CreateSparepart(CreateSparepartParam request);
+        public Task<List<ms_sparepart>> GetAllSparepart(GlobalFilter param);
+        public Task<int> RepoGetTotalAllSparepart(GlobalFilter filter);
+        public Task<ms_sparepart> GetSparepartById(long id);
+        public Task DeleteSparepartById(long id);
+        public Task UpdateSparepart(ms_sparepart param);
     }
 }
