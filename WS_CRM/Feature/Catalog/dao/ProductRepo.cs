@@ -16,12 +16,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
 using WS_CRM.Helper;
-using WS_CRM.Feature.Catalogue.Model;
-using WS_CRM.Feature.Catalogue.dto;
+using WS_CRM.Feature.Catalog.Model;
+using WS_CRM.Feature.Catalog.dto;
 using AutoMapper;
 using WS_CRM.Config;
 
-namespace WS_CRM.Feature.Catalogue.dao
+namespace WS_CRM.Feature.Catalog.dao
 {
     public class ProductRepo : IProductRepo
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WS_CRM.Feature.Catalogue.dao;
-using WS_CRM.Feature.Catalogue.dto;
-using WS_CRM.Feature.Catalogue.Model;
+using WS_CRM.Feature.Catalog.dao;
+using WS_CRM.Feature.Catalog.dto;
+using WS_CRM.Feature.Catalog.Model;
 using WS_CRM.Config;
 using WS_CRM.Helper;
 
@@ -12,15 +12,15 @@ using WS_CRM.Helper;
 //using WS_CRM.Feature.Customer.Model;
 //using WS_CRM.Helper;
 
-namespace WS_CRM.Feature.Catalogue
+namespace WS_CRM.Feature.Catalog
 {
     [ApiController]
     [Route("[controller]")]
-    public class CatalogueController : Controller
+    public class CatalogController : Controller
     {
         IProductRepo _prodRepo;
 
-        public CatalogueController(IProductRepo prodDao)
+        public CatalogController(IProductRepo prodDao)
         {
             _prodRepo = prodDao;
         }

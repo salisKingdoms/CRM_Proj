@@ -1,4 +1,4 @@
-﻿namespace WS_CRM.Feature.Catalogue.Model
+﻿namespace WS_CRM.Feature.Catalog.Model
 {
     public class ms_sparepart
     {

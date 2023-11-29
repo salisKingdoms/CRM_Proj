@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using WS_CRM.Config;
 
 
-namespace WS_CRM.Feature.Catalogue.dto
+namespace WS_CRM.Feature.Catalog.dto
 {
     public class ms_product_database_filter
     {

@@ -5,8 +5,8 @@ using System.Text.Json.Serialization;
 using WS_CRM.Helper;
 using AutoMapper;
 using WS_CRM.Feature.Activity.dao;
-using WS_CRM.Feature.Catalogue;
-using WS_CRM.Feature.Catalogue.dao;
+using WS_CRM.Feature.Catalog;
+using WS_CRM.Feature.Catalog.dao;
 
 var builder = WebApplication.CreateBuilder(args);
 
