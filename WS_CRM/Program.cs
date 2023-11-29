@@ -5,6 +5,8 @@ using System.Text.Json.Serialization;
 using WS_CRM.Helper;
 using AutoMapper;
 using WS_CRM.Feature.Activity.dao;
+using WS_CRM.Feature.Catalogue;
+using WS_CRM.Feature.Catalogue.dao;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,12 +31,14 @@ builder.Services.AddSwaggerGen();
     // configure strongly typed settings object
     services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
     services.Configure<DbSettingsAct>(builder.Configuration.GetSection("DbSettingsAct"));
+    services.Configure<DbCatalogue>(builder.Configuration.GetSection("DbCatalogue"));
     // configure DI for application services
     services.AddSingleton<DataContext>();
     services.AddScoped<ICustomerRepo, CustomerRepo>();
     services.AddScoped<ICustomerDao, CustomerDao>();
     services.AddScoped<IActivityRepo, ActivityRepo>();
     services.AddScoped<IActivityDao, ActivityDao>();
+    services.AddScoped<IProductRepo, ProductRepo>();
 }
 
 var app = builder.Build();
