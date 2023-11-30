@@ -163,5 +163,96 @@ namespace WS_CRM.Feature.Activity
             }
             return Ok(result);
         }
+
+        [HttpPost]
+        [Route("CreateEmployee")]
+        public async Task<IActionResult> CreateEmployee(ws_employee request)
+        {
+            var result = new APIResultList<List<ws_employee>>();
+            try
+            {
+                if (request != null)
+                {
+                    await _actDao.CreateEmployee(request);
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to submit, please contact administrator";
+            }
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [Route("GetEmployeeList")]
+        public async Task<IActionResult> GetEmployeeList()
+        {
+            var result = new APIResultList<List<ws_employee>>();
+            try
+            {
+                var data = await _actDao.GetAllEmployee("","");
+                var totalData = await _actDao.RepoGetTotalAllEmployee("","");
+                result.is_ok = true;
+                result.message = "Success";
+                result.data = data.ToList();
+                result.totalRow = totalData;
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return Ok(result);
+
+        }
+
+        [HttpGet]
+        [Route("GetDetailEmployeebyId")]
+        public async Task<IActionResult> GetDetailEmployeebyNIP(string nip)
+        {
+            var result = new APIResultList<ws_employee>();
+            try
+            {
+                if (!string.IsNullOrEmpty(nip))
+                {
+                    var data = await _actDao.GetEmployeeById(nip);
+                    result.data = data;
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data not found, please contact administrator";
+            }
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        [Route("DeleteEmployeebyNIP")]
+        public async Task<IActionResult> DeleteEmployeebyNIP(string nip)
+        {
+            var result = new APIResultList<ws_employee>();
+            try
+            {
+                if (!string.IsNullOrEmpty(nip))
+                {
+                    await _actDao.DeleteEmployee(nip);
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to delete, please contact administrator";
+            }
+            return Ok(result);
+        }
+
     }
 }

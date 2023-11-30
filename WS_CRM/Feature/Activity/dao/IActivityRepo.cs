@@ -29,5 +29,12 @@ namespace WS_CRM.Feature.Activity.dao
         public Task DeleteTicketUnit(string ticket_no, int? unit_line);
         public Task UpdateTicketUnit(ws_ticket_unit param);
 
+        public Task DeleteEmployee(string nip);
+        public Task<int> RepoGetTotalAllEmployee(string nip, string name);
+        public Task<List<ws_employee>> GetAllEmployee(string nip, string name);
+        public Task<ws_employee> GetEmployeeById(string nip);
+        public Task CreateEmployee(ws_employee request);
+
     }
 }
+

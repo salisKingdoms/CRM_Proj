@@ -298,7 +298,7 @@ namespace WS_CRM.Feature.Activity.dao
         public async Task<int> RepoGetTotalAllTicketUnit(string ticket_no)
         {
             using var connection = _context.ConnectionActivity();
-            var sql = QueryListTicketUnit(true);
+            var sql = QueryListTicketUnit(false);
             string queryFilter = " where ticket_no=@ticket_no ";
             string sqlALL = sql + queryFilter;
             var param = new Dictionary<string, object>
@@ -337,6 +337,110 @@ namespace WS_CRM.Feature.Activity.dao
                 modified_on = @modified_on
             WHERE id = @id";
             await connection.ExecuteAsync(sql, param);
+        }
+
+        public async Task CreateEmployee(ws_employee request)
+        {
+            using var connection = _context.ConnectionActivity();
+            try
+            {
+                var sql = " INSERT INTO ws_employee" +
+                        "(nip, name, phone, email)" +
+                        "VALUES (@nip, @name, @phone, @email )";
+                var param = new Dictionary<string, object>
+            {
+                { "nip", request.nip ?? "" },
+                { "name", request.name ?? "" },
+                { "phone", request.phone  },
+                { "email", request.email ?? ""  }
+
+            };
+                await connection.ExecuteAsync(sql, param);
+            }
+            catch (Exception ex)
+            {
+                string s = ex.Message;
+            }
+
+        }
+
+        private string QueryListEmployee(bool isList)
+        {
+
+            var query = (isList ? "SELECT * FROM ws_employee " : "SELECT COUNT (*) AS JUMLAH FROM ws_employee ");
+            return query;
+        }
+        private async Task<IEnumerable<ws_employee>> RepoGetAllEmployee(string nip, string name)
+        {
+            using var connection = _context.ConnectionActivity();
+            var sql = QueryListEmployee(true);
+            string queryFilter = string.Empty;
+            if (!string.IsNullOrEmpty(nip))
+            {
+                queryFilter = " where nip=@nip ";
+            }
+            if (!string.IsNullOrEmpty(name))
+            {
+                queryFilter = string.IsNullOrEmpty(queryFilter) ? " where name=@name " : " and name=@name";
+            }
+            string sqlALL = sql + queryFilter;
+            var param = new Dictionary<string, object>
+            {
+                { "nip", nip?? "" },
+                { "name", name?? "" }
+            };
+            return await connection.QueryAsync<ws_employee>(sqlALL, param);
+        }
+
+        public async Task<List<ws_employee>> GetAllEmployee(string nip, string name)
+        {
+            var data = RepoGetAllEmployee(nip,name).Result.ToList();
+            return data;
+        }
+        public async Task<int> RepoGetTotalAllEmployee(string nip, string name)
+        {
+            using var connection = _context.ConnectionActivity();
+            var sql = QueryListEmployee(false);
+            string queryFilter = string.Empty;
+            if (!string.IsNullOrEmpty(nip))
+            {
+                queryFilter = " where nip=@nip ";
+            }
+            if (!string.IsNullOrEmpty(name))
+            {
+                queryFilter = string.IsNullOrEmpty(queryFilter) ? " where name=@name " : " and name=@name";
+            }
+            string sqlALL = sql + queryFilter;
+            var param = new Dictionary<string, object>
+            {
+                { "nip", nip?? "" },
+                { "name", name?? "" }
+            };
+            return await connection.QuerySingleOrDefaultAsync<int>(sqlALL, param);
+        }
+
+        public async Task DeleteEmployee(string nip)
+        {
+            using var connection = _context.ConnectionActivity();
+            var sql = @" Delete from ws_employee 
+            WHERE nip = @nip";
+            var param = new Dictionary<string, object>
+            {
+                { "nip", nip ?? ""  }
+            };
+            await connection.ExecuteAsync(sql, param);
+        }
+
+        public async Task<ws_employee> GetEmployeeById(string nip)
+        {
+            using var connection = _context.ConnectionActivity();
+            var sql = " select * from ws_employee where nip=@nip";
+            var param = new Dictionary<string, object>
+            {
+                { "nip", nip  },
+
+            };
+            return await connection.QuerySingleOrDefaultAsync<ws_employee>(sql, param);
         }
     }
 }
