@@ -13,8 +13,8 @@ namespace WS_CRM.Feature.Activity
     [Route("[controller]")]
     public class ActivityController : Controller
     {
-        IActivityDao _actDao;
-        public ActivityController(IActivityDao actDao)
+        IActivityRepo _actDao;
+        public ActivityController(IActivityRepo actDao)
         {
             _actDao = actDao;
         }
@@ -28,7 +28,7 @@ namespace WS_CRM.Feature.Activity
             {
                 if (request != null)
                 {
-                    await _actDao.CreateActivity(request);
+                    await _actDao.CreateWarranty(request);
                     result.is_ok = true;
                     result.message = "Success";
                 }
@@ -49,7 +49,7 @@ namespace WS_CRM.Feature.Activity
             try
             {
                 var data = await _actDao.GetAllWarranty();
-                var totalData = await _actDao.GetTotalAllWarranty();
+                var totalData = await _actDao.RepoGetTotalAllWarranty();
                 result.is_ok = true;
                 result.message = "Success";
                 result.data = data.ToList();
@@ -62,6 +62,74 @@ namespace WS_CRM.Feature.Activity
 
             return Ok(result);
 
+        }
+
+        [HttpGet]
+        [Route("GetDetailWarrantybyId")]
+        public async Task<IActionResult> GetDetailWarrantybyId(long id)
+        {
+            var result = new APIResultList<ws_warranty>();
+            try
+            {
+                if (id > 0)
+                {
+                    var data = await _actDao.GetWarrantyById(id);
+                    result.data = data;
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data not found, please contact administrator";
+            }
+            return Ok(result);
+        }
+
+        [HttpDelete]
+        [Route("DeleteWarrantybyId")]
+        public async Task<IActionResult> DeleteWarrantybyId(long id)
+        {
+            var result = new APIResultList<ws_warranty>();
+            try
+            {
+                if (id > 0)
+                {
+                    await _actDao.DeleteProductById(id);
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to delete, please contact administrator";
+            }
+            return Ok(result);
+        }
+
+        [HttpPost]
+        [Route("UpdateWarranty")]
+        public async Task<IActionResult> UpdateWarranty(UpdateWarrantyRequest data)
+        {
+            var result = new APIResultList<ws_warranty>();
+            try
+            {
+                if (data != null && data.id > 0)
+                {
+                    var prod = HelperObj.convert<UpdateWarrantyRequest, ws_warranty>(data);
+                    await _actDao.UpdateWarranty(prod);
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to update, please contact administrator";
+            }
+            return Ok(result);
         }
     }
 }

@@ -20,17 +20,26 @@ using WS_CRM.Feature.Activity.Model;
 using WS_CRM.Feature.Activity.dto;
 using WS_CRM.Feature.Customer.dto;
 using WS_CRM.Feature.Customer.Model;
+using AutoMapper;
+using WS_CRM.Config;
 
 namespace WS_CRM.Feature.Activity.dao
 {
     public class ActivityRepo : IActivityRepo
     {
         private DataContext _context;
-        public ActivityRepo(DataContext context)
+        private readonly IMapper _mapper;
+        public ActivityRepo(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
+        public async Task<List<ws_warranty>> GetAllWarranty()
+        {
+            var data = RepoGetAllWarranty().Result.ToList();
+            return data;
+        }
         public async Task CreateWarranty(CreateActivationWarranty request)
         {
             using var connection = _context.ConnectionActivity();
@@ -74,9 +83,10 @@ namespace WS_CRM.Feature.Activity.dao
         private string QueryListWarranty(bool isList)
         {
             var query = isList ? "SELECT * FROM ws_warranty" : "SELECT COUNT (*) AS JUMLAH FROM ws_warranty";
+            query += " where active=true ";
             return query;
         }
-        public async Task<IEnumerable<ws_warranty>> RepoGetAllWarranty()
+        private async Task<IEnumerable<ws_warranty>> RepoGetAllWarranty()
         {
             using var connection = _context.ConnectionActivity();
             var sql = QueryListWarranty(true);
@@ -93,6 +103,140 @@ namespace WS_CRM.Feature.Activity.dao
             using var connection = _context.ConnectionActivity();
             var sql = QueryListWarranty(false);
             return await connection.QuerySingleOrDefaultAsync<int>(sql);
+        }
+
+        public async Task<ws_warranty> GetWarrantyById(long id)
+        {
+            using var connection = _context.ConnectionActivity();
+            var sql = " select * from ws_warranty where id=@id";
+            var param = new Dictionary<string, object>
+            {
+                { "id", id  },
+
+            };
+            return await connection.QuerySingleOrDefaultAsync<ws_warranty>(sql, param);
+        }
+
+        public async Task DeleteProductById(long id)
+        {
+            using var connection = _context.ConnectionActivity();
+            var sql = @" UPDATE ws_warranty 
+            SET active = false,
+                modified_by = @modified_by,
+                modified_on = @modified_on
+            WHERE id = @id"; 
+            var param = new Dictionary<string, object>
+            {
+                { "id", id  },
+
+            };
+            await connection.ExecuteAsync(sql, param);
+        }
+
+        public async Task UpdateWarranty(ws_warranty param)
+        {
+            using var connection = _context.ConnectionActivity();
+            var sql = @"
+            UPDATE ws_warranty 
+            SET company_code = @company_code,
+                invoice_no = @invoice_no,
+                invoice_date = @invoice_date, 
+                article_code = @article_code, 
+                article_name = @article_name,
+                serial_no = @serial_no,
+                start_date = @start_date,
+                end_date = @end_date,
+                modified_by = @modified_by,
+                modified_on = @modified_on
+            WHERE id = @id";
+            await connection.ExecuteAsync(sql, param);
+        }
+       
+        public async Task CreateTicketService(CreateTicket request)
+        {
+            using var connection = _context.ConnectionActivity();
+            try
+            {
+                var sql = " INSERT INTO ws_ticket" +
+                        "(ticket_no, status, customer_id, service_center, assign_to, payment_method,created_by,created_on,modified_by,modified_on " +
+                        ")" +
+                        "VALUES (@ticket_no, @status, @customer_id, @service_center, @assign_to, @payment_method,@created_by,@created_on,@modified_by,@modified_on" +
+                        ")";
+                var param = new Dictionary<string, object>
+            {
+                { "ticket_no", request.ticket_no ?? "" },
+                { "status", request.status ?? "" },
+                { "customer_id", request.customer_id },
+                { "service_center", request.service_center ?? "" },
+                { "assign_to", request.assign_to ?? "" },
+                { "article_name", request.article_name ?? "" },
+                { "payment_method", request.payment_method ?? "" },
+                { "created_by", request.created_by ??""},
+                { "created_on", request.created_on ?? null },
+                { "modified_by",null },
+                { "modified_on",null}
+
+            };
+                await connection.ExecuteAsync(sql, param);
+            }
+            catch (Exception ex)
+            {
+                string s = ex.Message;
+            }
+
+        }
+
+        private string QueryListTicket(bool isList, string filters)
+        {
+
+            var query = (isList ? "SELECT * FROM ws_ticket " : "SELECT COUNT (*) AS JUMLAH FROM ws_ticket ") + filters;
+            return query;
+        }
+        private async Task<IEnumerable<ws_ticket>> RepoGetAllTicket(GlobalFilter filter)
+        {
+            using var connection = _context.ConnectionActivity();
+            ws_ticket_database_filter dbModel = new ws_ticket_database_filter();
+            (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
+            var sql = QueryListTicket(true, whereParam.Item1);
+            string sqlALL = sql + "limit @limit offset @offset";
+            var param = new Dictionary<string, object>
+            {
+                { "limit",filter.limit ?? 0},
+                { "offset",filter.offset??0}
+            };
+            return await connection.QueryAsync<ws_ticket>(sql, param.Concat(whereParam.Item2).ToDictionary(x => x.Key, x => x.Value));
+        }
+        public async Task<int> RepoGetTotalAllTicket(GlobalFilter filter)
+        {
+            using var connection = _context.ConnectionActivity();
+            ws_ticket_database_filter dbModel = new ws_ticket_database_filter();
+            (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
+            var sql = QueryListTicket(false, whereParam.Item1);
+            var param = new Dictionary<string, object>
+            {
+
+            };
+            return await connection.QuerySingleOrDefaultAsync<int>(sql, param.Concat(whereParam.Item2).ToDictionary(x => x.Key, x => x.Value));
+        }
+
+        public async Task<List<ws_ticket>> GetAllTicketHeader()
+        {
+            var data = RepoGetAllTicket().Result.ToList();
+            return data;
+        }
+
+        public async Task UpdateTicketHeader(ws_ticket param)
+        {
+            using var connection = _context.ConnectionActivity();
+            var sql = @"
+            UPDATE ws_ticket 
+            SET status = @status,
+                assign_to = @assign_to,
+                payment_method = @payment_method, 
+                modified_by = @modified_by,
+                modified_on = @modified_on
+            WHERE id = @id";
+            await connection.ExecuteAsync(sql, param);
         }
     }
 }

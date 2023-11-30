@@ -37,7 +37,6 @@ builder.Services.AddSwaggerGen();
     services.AddScoped<ICustomerRepo, CustomerRepo>();
     services.AddScoped<ICustomerDao, CustomerDao>();
     services.AddScoped<IActivityRepo, ActivityRepo>();
-    services.AddScoped<IActivityDao, ActivityDao>();
     services.AddScoped<IProductRepo, ProductRepo>();
 }
 
