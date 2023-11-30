@@ -19,8 +19,15 @@ namespace WS_CRM.Feature.Activity.dao
         public Task UpdateWarranty(ws_warranty param);
 
         public Task CreateTicketService(CreateTicket request);
-        public Task<List<ws_ticket>> GetAllTicketHeader();
+        public Task<List<ws_ticket>> GetAllTicketHeader(GlobalFilter filter);
         public Task<int> RepoGetTotalAllTicket(GlobalFilter filter);
         public  Task UpdateTicketHeader(ws_ticket param);
+
+        public Task CreateTicketUnit(CreateTicketUnit request);
+        public Task<List<ws_ticket_unit>> GetAllTicketUnit(string ticket_no);
+        public Task<int> RepoGetTotalAllTicketUnit(string ticket_no);
+        public Task DeleteTicketUnit(string ticket_no, int? unit_line);
+        public Task UpdateTicketUnit(ws_ticket_unit param);
+
     }
 }

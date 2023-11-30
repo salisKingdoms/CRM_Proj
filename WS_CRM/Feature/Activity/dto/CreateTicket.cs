@@ -11,4 +11,23 @@
         public string created_by { get; set; }
         public DateTime? created_on { get; set; }
     }
+
+    public class CreateTicketUnit
+    {
+        public string ticket_no { get; set; }
+        public string sku_code { get; set; }
+        public string product_name { get; set; }
+        public int qty { get; set; }
+        public int unit_line_no { get; set; }
+        public string warranty_no { get; set; }
+        public bool active { get; set; }
+        public string created_by { get; set; }
+        public DateTime? created_on { get; set; }
+    }
+
+    public class CreateTiketBase
+    {
+        public CreateTicket ticket_header { get; set; }
+        public List<CreateTicketUnit> ticket_unit { get; set; }
+    }
 }

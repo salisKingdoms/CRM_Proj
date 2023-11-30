@@ -169,7 +169,6 @@ namespace WS_CRM.Feature.Activity.dao
                 { "customer_id", request.customer_id },
                 { "service_center", request.service_center ?? "" },
                 { "assign_to", request.assign_to ?? "" },
-                { "article_name", request.article_name ?? "" },
                 { "payment_method", request.payment_method ?? "" },
                 { "created_by", request.created_by ??""},
                 { "created_on", request.created_on ?? null },
@@ -219,9 +218,9 @@ namespace WS_CRM.Feature.Activity.dao
             return await connection.QuerySingleOrDefaultAsync<int>(sql, param.Concat(whereParam.Item2).ToDictionary(x => x.Key, x => x.Value));
         }
 
-        public async Task<List<ws_ticket>> GetAllTicketHeader()
+        public async Task<List<ws_ticket>> GetAllTicketHeader(GlobalFilter filter)
         {
-            var data = RepoGetAllTicket().Result.ToList();
+            var data = RepoGetAllTicket(filter).Result.ToList();
             return data;
         }
 
@@ -233,6 +232,107 @@ namespace WS_CRM.Feature.Activity.dao
             SET status = @status,
                 assign_to = @assign_to,
                 payment_method = @payment_method, 
+                modified_by = @modified_by,
+                modified_on = @modified_on
+            WHERE id = @id";
+            await connection.ExecuteAsync(sql, param);
+        }
+        public async Task CreateTicketUnit(CreateTicketUnit request)
+        {
+            using var connection = _context.ConnectionActivity();
+            try
+            {
+                var sql = " INSERT INTO ws_ticket_unit" +
+                        "(ticket_no, sku_code, product_name, qty, unit_line_no, warranty_no,active,created_by,created_on,modified_by,modified_on " +
+                        ")" +
+                        "VALUES (@ticket_no, @sku_code, @product_name, @qty, @unit_line_no, @warranty_no,@active,@created_by,@created_on,@modified_by,@modified_on " +
+                        ")";
+                var param = new Dictionary<string, object>
+            {
+                { "ticket_no", request.ticket_no ?? "" },
+                { "sku_code", request.sku_code ?? "" },
+                { "product_name", request.product_name ?? "" },
+                { "qty", request.qty  },
+                { "unit_line_no", request.unit_line_no  },
+                { "warranty_no", request.warranty_no ?? "" },
+                { "active", request.active  },
+                { "created_by", request.created_by ??""},
+                { "created_on", request.created_on ?? null },
+                { "modified_by",null },
+                { "modified_on",null}
+
+            };
+                await connection.ExecuteAsync(sql, param);
+            }
+            catch (Exception ex)
+            {
+                string s = ex.Message;
+            }
+
+        }
+
+        private string QueryListTicketUnit(bool isList)
+        {
+
+            var query = (isList ? "SELECT * FROM ws_ticket_unit " : "SELECT COUNT (*) AS JUMLAH FROM ws_ticket_unit ");
+            return query;
+        }
+        private async Task<IEnumerable<ws_ticket_unit>> RepoGetAllTicketUnit(string ticket_no)
+        {
+            using var connection = _context.ConnectionActivity();
+            var sql = QueryListTicketUnit(true);
+            string queryFilter = " where ticket_no=@ticket_no ";
+            string sqlALL = sql + queryFilter ;
+            var param = new Dictionary<string, object>
+            {
+                { "ticket_no", ticket_no?? "" }
+            };
+            return await connection.QueryAsync<ws_ticket_unit>(sqlALL, param);
+        }
+
+        public async Task<List<ws_ticket_unit>> GetAllTicketUnit(string ticket_no)
+        {
+            var data = RepoGetAllTicketUnit(ticket_no).Result.ToList();
+            return data;
+        }
+        public async Task<int> RepoGetTotalAllTicketUnit(string ticket_no)
+        {
+            using var connection = _context.ConnectionActivity();
+            var sql = QueryListTicketUnit(true);
+            string queryFilter = " where ticket_no=@ticket_no ";
+            string sqlALL = sql + queryFilter;
+            var param = new Dictionary<string, object>
+            {
+                { "ticket_no", ticket_no?? "" }
+            };
+            return await connection.QuerySingleOrDefaultAsync<int>(sqlALL, param);
+        }
+
+        public async Task DeleteTicketUnit(string ticket_no, int? unit_line)
+        {
+            using var connection = _context.ConnectionActivity();
+            var sql = @" UPDATE ws_ticket_unit 
+            SET active = false,
+                modified_by = @modified_by,
+                modified_on = @modified_on
+            WHERE ticket_no = @ticket_no and unit_line_no=@unit_line";
+            var param = new Dictionary<string, object>
+            {
+                { "ticket_no", ticket_no ?? ""  },
+                { "unit_line",unit_line ?? null }
+
+            };
+            await connection.ExecuteAsync(sql, param);
+        }
+
+        public async Task UpdateTicketUnit(ws_ticket_unit param)
+        {
+            using var connection = _context.ConnectionActivity();
+            var sql = @"
+            UPDATE ws_ticket_unit 
+            SET sku_code = @sku_code,
+                product_name = @product_name,
+                qty = @qty, 
                 modified_by = @modified_by,
                 modified_on = @modified_on
             WHERE id = @id";

@@ -131,5 +131,37 @@ namespace WS_CRM.Feature.Activity
             }
             return Ok(result);
         }
+
+        [HttpPost]
+        [Route("Ticket/CreateTicket")]
+        public async Task<IActionResult> CreateTicket(CreateTiketBase request)
+        {
+            var result = new APIResultList<List<ws_ticket>>();
+            try
+            {
+                if (request != null)
+                {
+                    string ticketNo = "T0001";//must make logic to generate number automaticly
+                    request.ticket_header.ticket_no = ticketNo;
+                    await _actDao.CreateTicketService(request.ticket_header);
+
+
+                    foreach (var unit in request.ticket_unit)
+                    {
+                        unit.ticket_no = ticketNo;
+                        await _actDao.CreateTicketUnit(unit);
+                    }
+                    
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to submit, please contact administrator";
+            }
+            return Ok(result);
+        }
     }
 }
