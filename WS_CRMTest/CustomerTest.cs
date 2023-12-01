@@ -1,19 +1,20 @@
-using WS_CRM.Config;
-using WS_CRM.Feature.Customer;
-using WS_CRM.Feature.Customer.dao;
-using WS_CRM.Feature.Customer.dto;
-using WS_CRM.Feature.Customer.Model;
+using WS_CRM_Customer.Config;
+using WS_CRM_Customer.Feature.Customer;
+using WS_CRM_Customer.Feature.Customer.Dao;
+using WS_CRM_Customer.Feature.Customer.Dto;
+using WS_CRM_Customer.Feature.Customer.Model;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using WS_CRM_Customer.Feature.Customer.Dao;
 
-namespace WS_CRMTest
+namespace WS_CRM_CustomerTest
 {
     public class CustomerTest
     {
         public CustomerController controller;
-        private Mock<ICustomerDao> custDao;
-        public WS_CRM.Config.AppConfig appConfig;
+        private Mock<ICustomerRepo> custDao;
+        public WS_CRM_Customer.Config.AppConfig appConfig;
 
         private int expected = 200;
         private string dummyT = "test";
@@ -21,9 +22,9 @@ namespace WS_CRMTest
 
         public CustomerTest()
         {
-            custDao = new Mock<ICustomerDao>();
+            custDao = new Mock<ICustomerRepo>();
             custDao.CallBase = true;
-            appConfig = new WS_CRM.Config.AppConfig();
+            appConfig = new WS_CRM_Customer.Config.AppConfig();
             controller = new CustomerController(custDao.Object);
         }
 

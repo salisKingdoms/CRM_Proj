@@ -1,4 +1,4 @@
-﻿namespace WS_CRM.Feature.Customer.Model
+﻿namespace WS_CRM_Customer.Feature.Customer.Model
 {
     public class Members
     {

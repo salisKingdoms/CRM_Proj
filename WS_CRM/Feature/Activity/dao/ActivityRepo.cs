@@ -18,8 +18,6 @@ using Dapper;
 using WS_CRM.Helper;
 using WS_CRM.Feature.Activity.Model;
 using WS_CRM.Feature.Activity.dto;
-using WS_CRM.Feature.Customer.dto;
-using WS_CRM.Feature.Customer.Model;
 using AutoMapper;
 using WS_CRM.Config;
 

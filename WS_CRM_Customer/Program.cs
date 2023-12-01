@@ -1,10 +1,8 @@
-
+using WS_CRM_Customer.Feature.Customer;
 using System.Text.Json.Serialization;
-using WS_CRM.Helper;
+using WS_CRM_Customer.Helper;
 using AutoMapper;
-using WS_CRM.Feature.Activity.dao;
-using WS_CRM.Feature.Catalog;
-using WS_CRM.Feature.Catalog.dao;
+using WS_CRM_Customer.Feature.Customer.Dao;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,15 +23,14 @@ builder.Services.AddSwaggerGen();
         x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
     services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+    //services.AddControllers().add;
     // configure strongly typed settings object
-    services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
-    services.Configure<DbSettingsAct>(builder.Configuration.GetSection("DbSettingsAct"));
-    services.Configure<DbCatalogue>(builder.Configuration.GetSection("DbCatalogue"));
+    services.Configure<DBSettings>(builder.Configuration.GetSection("DbSettings"));
+
     // configure DI for application services
     services.AddSingleton<DataContext>();
-    services.AddScoped<IActivityRepo, ActivityRepo>();
-    services.AddScoped<IProductRepo, ProductRepo>();
+    services.AddScoped<ICustomerRepo, CustomerRepo>();
+
 }
 
 var app = builder.Build();
@@ -45,23 +42,7 @@ var app = builder.Build();
     await context.Init();
 }
 
-// configure HTTP request pipeline
-//{
-//    // global cors policy
-//    app.UseCors(x => x
-//        .AllowAnyOrigin()
-//        .AllowAnyMethod()
-//        .AllowAnyHeader());
 
-//    // global error handler
-//    app.UseMiddleware<ErrorHandlerMiddleware>();
-
-//    app.MapControllers();
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-//app.Run();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

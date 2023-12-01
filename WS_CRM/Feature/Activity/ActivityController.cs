@@ -5,7 +5,6 @@ using WS_CRM.Feature.Activity.dto;
 using WS_CRM.Feature.Activity.Model;
 using WS_CRM.Helper;
 using WS_CRM.Feature.Activity.Model;
-using WS_CRM.Feature.Customer.Model;
 
 namespace WS_CRM.Feature.Activity
 {

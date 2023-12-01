@@ -15,38 +15,24 @@ using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
-using WS_CRM.Helper;
-using WS_CRM.Feature.Customer.Model;
-using WS_CRM.Feature.Customer.dto;
+using WS_CRM_Customer.Helper;
+using WS_CRM_Customer.Feature.Customer.Dto;
+using WS_CRM_Customer.Feature.Customer.Model;
+using AutoMapper;
+using WS_CRM_Customer.Config;
 
-namespace WS_CRM.Feature.Customer.dao
+namespace WS_CRM_Customer.Feature.Customer.Dao
 {
-    public class CustomerRepo : ICustomerRepo
+    public class CustomerRepo :ICustomerRepo
     {
         private DataContext _context;
-
-        public CustomerRepo(DataContext context)
+        private readonly IMapper _mapper;
+        public CustomerRepo(DataContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        private string QueryListCustomer(bool isList)
-        {
-            var query = isList ? "SELECT * FROM ws_customer" :"SELECT COUNT (*) AS JUMLAH FROM ws_customer" ;
-            return query;
-        }
-        public async Task<IEnumerable<Customers>> RepoGetAllCustomer()
-        {
-            using var connection = _context.CreateConnection();
-            var sql = QueryListCustomer(true);
-            return await connection.QueryAsync<Customers>(sql);
-        }
-        public async Task<int> RepoGetTotalAllCustomer()
-        {
-            using var connection = _context.CreateConnection();
-            var sql = QueryListCustomer(false);
-            return await connection.QuerySingleOrDefaultAsync<int>(sql);
-        }
         public async Task CreateCustomer(CreateCustomerRequest request)
         {
             using var connection = _context.CreateConnection();
@@ -65,8 +51,8 @@ namespace WS_CRM.Feature.Customer.dao
                 { "modified_by",null },
                 { "modified_on",null}
             };
-             await connection.ExecuteAsync(sql, param);
-            
+            await connection.ExecuteAsync(sql, param);
+
         }
 
         public async Task<Customers> GetCustomerById(long id)
@@ -81,6 +67,29 @@ namespace WS_CRM.Feature.Customer.dao
             return await connection.QuerySingleOrDefaultAsync<Customers>(sql, param);
         }
 
+        private string QueryListCustomer(bool isList)
+        {
+            var query = isList ? "SELECT * FROM ws_customer" : "SELECT COUNT (*) AS JUMLAH FROM ws_customer";
+            return query;
+        }
+        private async Task<IEnumerable<Customers>> RepoGetAllCustomer()
+        {
+            using var connection = _context.CreateConnection();
+            var sql = QueryListCustomer(true);
+            return await connection.QueryAsync<Customers>(sql);
+        }
+
+        public async Task<List<Customers>> GetAllCustomer(long id, string name)
+        {
+            var data = RepoGetAllCustomer().Result.ToList();
+            return data;
+        }
+        public async Task<int> RepoGetTotalAllCustomer()
+        {
+            using var connection = _context.CreateConnection();
+            var sql = QueryListCustomer(false);
+            return await connection.QuerySingleOrDefaultAsync<int>(sql);
+        }
         public async Task DeleteCustomerById(long id)
         {
             using var connection = _context.CreateConnection();
@@ -147,7 +156,7 @@ namespace WS_CRM.Feature.Customer.dao
                 { "modified_on",null},
                 { "is_active",true }
             };
-            var datas = await  connection.ExecuteScalarAsync<long>(sql, param);
+            var datas = await connection.ExecuteScalarAsync<long>(sql, param);
 
             return datas;
         }
