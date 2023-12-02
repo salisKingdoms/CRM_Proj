@@ -15,7 +15,7 @@ namespace WS_CRM.Feature.Activity.dao
         public Task<List<ws_warranty>> GetAllWarranty();
         public Task<int> RepoGetTotalAllWarranty();
         public Task<ws_warranty> GetWarrantyById(long id);
-        public Task DeleteProductById(long id);
+        public Task DeleteWarrantyById(long id);
         public Task UpdateWarranty(ws_warranty param);
 
         public Task CreateTicketService(CreateTicket request);
@@ -28,8 +28,12 @@ namespace WS_CRM.Feature.Activity.dao
         public Task<int> RepoGetTotalAllTicketUnit(string ticket_no);
         public Task DeleteTicketUnit(string ticket_no, int? unit_line);
         public Task UpdateTicketUnit(ws_ticket_unit param);
-
-
+        public  Task<ws_ticket> GetTicketHeaderByTicketNo(string ticket_no);
+        public  Task CreateTicketSparepart(CreateTicketSparepart request);
+        public  Task<List<ws_ticket_sparepart>> GetAllTicketSparepart(string ticket_no);
+        public  Task<int> RepoGetTotalAllTicketSparepart(string ticket_no);
+        public  Task DeleteTicketSparepart(string ticket_no, int? unit_line);
+        public  Task UpdateTicketSparepart(ws_ticket_unit param);
     }
 }
 

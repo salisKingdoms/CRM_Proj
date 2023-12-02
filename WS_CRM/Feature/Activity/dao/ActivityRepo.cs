@@ -115,7 +115,7 @@ namespace WS_CRM.Feature.Activity.dao
             return await connection.QuerySingleOrDefaultAsync<ws_warranty>(sql, param);
         }
 
-        public async Task DeleteProductById(long id)
+        public async Task DeleteWarrantyById(long id)
         {
             using var connection = _context.CreateConnection();
             var sql = @" UPDATE ws_warranty 
@@ -222,6 +222,17 @@ namespace WS_CRM.Feature.Activity.dao
             return data;
         }
 
+        public async Task<ws_ticket> GetTicketHeaderByTicketNo(string ticket_no)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = " select * from ws_ticket where ticket_no=@ticket_no";
+            var param = new Dictionary<string, object>
+            {
+                { "ticket_no", ticket_no  },
+
+            };
+            return await connection.QuerySingleOrDefaultAsync<ws_ticket>(sql, param);
+        }
         public async Task UpdateTicketHeader(ws_ticket param)
         {
             using var connection = _context.CreateConnection();
@@ -337,6 +348,108 @@ namespace WS_CRM.Feature.Activity.dao
             await connection.ExecuteAsync(sql, param);
         }
 
-        
+        public async Task CreateTicketSparepart(CreateTicketSparepart request)
+        {
+            using var connection = _context.CreateConnection();
+            try
+            {
+                var sql = " INSERT INTO ws_ticket_sparepart" +
+                        "(ticket_no, sparepart_code, sparepart_name, product_name, qty, unit_line_no,uom,created_by,created_on,modified_by,modified_on " +
+                        ")" +
+                        "VALUES (@ticket_no, @sparepart_code, @sparepart_name, @product_name, @qty, @unit_line_no,@uom,@created_by,@created_on,@modified_by,@modified_on " +
+                        ")";
+                var param = new Dictionary<string, object>
+            {
+                { "ticket_no", request.ticket_no ?? "" },
+                { "sparepart_code", request.sparepart_code ?? "" },
+                { "sparepart_name", request.sparepart_name ?? "" },
+                { "product_name", request.product_name ?? ""  },
+                { "qty", request.qty  },
+                { "unit_line_no", request.unit_line_no  },
+                { "uom", request.uom  },
+                { "created_by", request.created_by ??""},
+                { "created_on", request.created_on ?? null },
+                { "modified_by",null },
+                { "modified_on",null}
+
+            };
+                await connection.ExecuteAsync(sql, param);
+            }
+            catch (Exception ex)
+            {
+                string s = ex.Message;
+            }
+
+        }
+
+        private string QueryListTicketSparepart(bool isList)
+        {
+
+            var query = (isList ? "SELECT * FROM ws_ticket_sparepart " : "SELECT COUNT (*) AS JUMLAH FROM ws_ticket_sparepart ");
+            return query;
+        }
+        private async Task<IEnumerable<ws_ticket_sparepart>> RepoGetAllTicketSparepart(string ticket_no)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = QueryListTicketUnit(true);
+            string queryFilter = " where ticket_no=@ticket_no ";
+            string sqlALL = sql + queryFilter;
+            var param = new Dictionary<string, object>
+            {
+                { "ticket_no", ticket_no?? "" }
+            };
+            return await connection.QueryAsync<ws_ticket_sparepart>(sqlALL, param);
+        }
+
+        public async Task<List<ws_ticket_sparepart>> GetAllTicketSparepart(string ticket_no)
+        {
+            var data = RepoGetAllTicketSparepart(ticket_no).Result.ToList();
+            return data;
+        }
+        public async Task<int> RepoGetTotalAllTicketSparepart(string ticket_no)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = QueryListTicketSparepart(false);
+            string queryFilter = " where ticket_no=@ticket_no ";
+            string sqlALL = sql + queryFilter;
+            var param = new Dictionary<string, object>
+            {
+                { "ticket_no", ticket_no?? "" }
+            };
+            return await connection.QuerySingleOrDefaultAsync<int>(sqlALL, param);
+        }
+
+        public async Task DeleteTicketSparepart(string ticket_no, int? unit_line)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = @" UPDATE ws_ticket_sparepart 
+            SET active = false,
+                modified_by = @modified_by,
+                modified_on = @modified_on
+            WHERE ticket_no = @ticket_no and unit_line_no=@unit_line";
+            var param = new Dictionary<string, object>
+            {
+                { "ticket_no", ticket_no ?? ""  },
+                { "unit_line",unit_line ?? null }
+
+            };
+            await connection.ExecuteAsync(sql, param);
+        }
+
+        public async Task UpdateTicketSparepart(ws_ticket_unit param)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = @"
+            UPDATE ws_ticket_sparepart 
+            SET sparepart_name = @sparepart_name,
+                product_name = @product_name,
+                unit_line_no = @unit_line_no,
+                uom = @product_name,
+                qty = @qty, 
+                modified_by = @modified_by,
+                modified_on = @modified_on
+            WHERE ticket_no = @ticket_no";
+            await connection.ExecuteAsync(sql, param);
+        }
     }
 }

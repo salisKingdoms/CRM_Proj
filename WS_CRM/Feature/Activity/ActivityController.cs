@@ -95,7 +95,7 @@ namespace WS_CRM.Feature.Activity
             {
                 if (id > 0)
                 {
-                    await _actDao.DeleteProductById(id);
+                    await _actDao.DeleteWarrantyById(id);
                     result.is_ok = true;
                     result.message = "Success";
                 }
@@ -144,13 +144,24 @@ namespace WS_CRM.Feature.Activity
                     request.ticket_header.ticket_no = ticketNo;
                     await _actDao.CreateTicketService(request.ticket_header);
 
-
-                    foreach (var unit in request.ticket_unit)
+                    if(request.ticket_unit != null)
                     {
-                        unit.ticket_no = ticketNo;
-                        await _actDao.CreateTicketUnit(unit);
+                        foreach (var unit in request.ticket_unit)
+                        {
+                            unit.ticket_no = ticketNo;
+                            await _actDao.CreateTicketUnit(unit);
+                        }
                     }
-                    
+
+                    if (request.ticket_sparepart != null)
+                    {
+                        foreach (var sparepart in request.ticket_sparepart)
+                        {
+                            sparepart.ticket_no = ticketNo;
+                            await _actDao.CreateTicketSparepart(sparepart);
+                        }
+                    }
+
                     result.is_ok = true;
                     result.message = "Success";
                 }
@@ -163,7 +174,32 @@ namespace WS_CRM.Feature.Activity
             return Ok(result);
         }
 
-       
+        [HttpPost]
+        [Route("Ticket/GetTicketDetail")]
+        public async Task<IActionResult> GetTicketDetail(string ticket_no)
+        {
+            var result = new APIResultList<List<TicketDetailRespon>>();
+            try
+            {
+                if (!string.IsNullOrEmpty(ticket_no))
+                {
+                   var header = await _actDao.GetTicketHeaderByTicketNo(ticket_no);
+                    var unit = await _actDao.GetAllTicketUnit(ticket_no);
+                    var sparepart = await _actDao.GetAllTicketSparepart(ticket_no);
+                    //get customer
+                    //get employee for assign to
+
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to submit, please contact administrator";
+            }
+            return Ok(result);
+        }
 
     }
 }
