@@ -7,7 +7,7 @@ namespace WS_CRM.Feature.Activity.dto
     public class ws_ticket_database_filter
     {
         [DisplayName("ticket_no")]
-        [CustomAttribute("Equal")]
+        [CustomAttribute("Like")]
         [Column("ticket_no", Order = 1)]
         public string ticket_no { get; set; }
 

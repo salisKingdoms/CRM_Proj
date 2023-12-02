@@ -185,7 +185,7 @@ namespace WS_CRM.Feature.Activity.dao
 
         private string QueryListTicket(bool isList, string filters)
         {
-
+            //(isList ? "SELECT * FROM ms_product " : "SELECT COUNT (*) AS JUMLAH FROM ms_product ") + filters;
             var query = (isList ? "SELECT * FROM ws_ticket " : "SELECT COUNT (*) AS JUMLAH FROM ws_ticket ") + filters;
             return query;
         }
@@ -195,13 +195,15 @@ namespace WS_CRM.Feature.Activity.dao
             ws_ticket_database_filter dbModel = new ws_ticket_database_filter();
             (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
             var sql = QueryListTicket(true, whereParam.Item1);
-            string sqlALL = sql + "limit @limit offset @offset";
+            string sqlALL = sql + " limit @limit offset @offset";
             var param = new Dictionary<string, object>
             {
                 { "limit",filter.limit ?? 0},
                 { "offset",filter.offset??0}
             };
-            return await connection.QueryAsync<ws_ticket>(sql, param.Concat(whereParam.Item2).ToDictionary(x => x.Key, x => x.Value));
+
+            return await connection.QueryAsync<ws_ticket>(sqlALL, param.Concat(whereParam.Item2).ToDictionary(x => x.Key, x => x.Value));
+
         }
         public async Task<int> RepoGetTotalAllTicket(GlobalFilter filter)
         {
@@ -451,15 +453,11 @@ namespace WS_CRM.Feature.Activity.dao
             WHERE ticket_no = @ticket_no";
             await connection.ExecuteAsync(sql, param);
         }
-
-        //public async Task <APIResultList<CustomerRespon>> GetEmployeeByNIP(string NIP,string endpoint )
-        //{
-        //    return CallAPIHelper.RunAPIServiceRequestGET(new CustomerRespon(), endpoint);
-        //}
-
         public async Task<CustomerRespon> GetCustomerById(string endpoint)
         {
             return CallAPIHelper.RunAPIServiceRequestGET(new CustomerRespon(), endpoint);
         }
+
+        
     }
 }

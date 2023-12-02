@@ -255,5 +255,28 @@ namespace WS_CRM.Feature.Activity
             return Ok(result);
         }
 
+        [HttpPost]
+        [Route("GetTicketList")]
+        public async Task<IActionResult> GetTicketList(GlobalFilter filter)
+        {
+            var result = new APIResultList<List<ws_ticket>>();
+            try
+            {
+                var data = await _actDao.GetAllTicketHeader(filter);
+                var totalData = await _actDao.RepoGetTotalAllTicket(filter);
+                result.is_ok = true;
+                result.message = "Success";
+                result.data = data.ToList();
+                result.totalRow = totalData;
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return Ok(result);
+
+        }
+
     }
 }
