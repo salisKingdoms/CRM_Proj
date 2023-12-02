@@ -1,10 +1,9 @@
-//using Microsoft.AspNetCore;
-using WS_CRM.Feature.Customer;
-using WS_CRM.Feature.Customer.dao;
+
+
 using System.Text.Json.Serialization;
 using WS_CRM.Helper;
 using AutoMapper;
-
+using WS_CRM.Feature.Activity.dao;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,11 +27,10 @@ builder.Services.AddSwaggerGen();
 
     // configure strongly typed settings object
     services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
-
+   // var appConfig = configh
     // configure DI for application services
     services.AddSingleton<DataContext>();
-    services.AddScoped<ICustomerRepo, CustomerRepo>();
-    services.AddScoped<ICustomerDao, CustomerDao>();
+    services.AddScoped<IActivityRepo, ActivityRepo>();
 }
 
 var app = builder.Build();

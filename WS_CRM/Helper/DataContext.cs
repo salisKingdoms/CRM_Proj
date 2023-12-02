@@ -18,7 +18,6 @@ namespace WS_CRM.Helper
             var connectionString = $"Host={_dbSettings.Server}; Database={_dbSettings.Database}; Username={_dbSettings.UserId}; Password={_dbSettings.Password};";
             return new NpgsqlConnection(connectionString);
         }
-
         public async Task Init()
         {
             await _initDatabase();
@@ -43,23 +42,7 @@ namespace WS_CRM.Helper
         {
             // create tables if they don't exist
             using var connection = CreateConnection();
-           //wait _initCustomers();
 
-            //async Task _initCustomers()
-            //{
-            //    var sql = """
-            //    CREATE TABLE IF NOT EXISTS customers (
-            //        id SERIAL PRIMARY KEY,
-            //        name VARCHAR,
-            //        FirstName VARCHAR,
-            //        LastName VARCHAR,
-            //        Email VARCHAR,
-            //        Role INTEGER,
-            //        PasswordHash VARCHAR
-            //    );
-            //""";
-            //    await connection.ExecuteAsync(sql);
-            //}
         }
     }
 }

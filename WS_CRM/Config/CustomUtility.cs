@@ -7,6 +7,7 @@ using System.Net.Mail;
 using System.Net.Mime;
 using System.Reflection;
 using System.Text;
+using WS_CRM.Helper;
 //using System.Web.Helpers;
 
 namespace WS_CRM.Config
@@ -21,7 +22,7 @@ namespace WS_CRM.Config
             NestedQuote
         }
 
-        public static (string, Dictionary<string, object>) GetWhere<T>(T obj, bool isExtendWhere, ParamDatabasePagingParam pagingParam)
+        public static (string, Dictionary<string, object>) GetWhere<T>(T obj, bool isExtendWhere, GlobalFilter pagingParam)
         {
             string result = string.Empty;
 
