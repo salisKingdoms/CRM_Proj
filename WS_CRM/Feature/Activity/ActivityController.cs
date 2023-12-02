@@ -17,7 +17,7 @@ namespace WS_CRM.Feature.Activity
         public ActivityController(IActivityRepo actDao)
         {
             _actDao = actDao;
-           // _appConfig = appConfig;
+            // _appConfig = appConfig;
         }
 
         [HttpPost]
@@ -146,7 +146,7 @@ namespace WS_CRM.Feature.Activity
                     request.ticket_header.ticket_no = ticketNo;
                     await _actDao.CreateTicketService(request.ticket_header);
 
-                    if(request.ticket_unit != null)
+                    if (request.ticket_unit != null)
                     {
                         foreach (var unit in request.ticket_unit)
                         {
@@ -185,14 +185,64 @@ namespace WS_CRM.Feature.Activity
             {
                 if (!string.IsNullOrEmpty(ticket_no))
                 {
-                   var header = await _actDao.GetTicketHeaderByTicketNo(ticket_no);
+                    var header = await _actDao.GetTicketHeaderByTicketNo(ticket_no);
                     var unit = await _actDao.GetAllTicketUnit(ticket_no);
                     var sparepart = await _actDao.GetAllTicketSparepart(ticket_no);
-                    var endpointCustomer = "https://localhost:44314/Customer/" + AppConstant.CUSTOMER_GET_DETAIL + "?id=" + header.customer_id;
-                    var customers = await _actDao.GetCustomerById(endpointCustomer);
+                    //var endpointCustomer = "https://localhost:44314/Customer/" + AppConstant.CUSTOMER_GET_DETAIL + "?id=" + header.customer_id;
+                    // var customers = await _actDao.GetCustomerById(endpointCustomer);
                     //get customer
                     //get employee for assign to
+                    List<CreateTicketUnit> unitList = new List<CreateTicketUnit>();
+                    foreach (var item_u in unit)
+                    {
+                        unitList.Add(new CreateTicketUnit
+                        {
+                            active = item_u.active,
+                            product_name = item_u.product_name,
+                            sku_code = item_u.sku_code,
+                            qty = item_u.qty,
+                            unit_line_no = item_u.unit_line_no,
+                            created_by = item_u.created_by,
+                            created_on = item_u.created_on
+                        });
 
+                    }
+
+                    List<CreateTicketSparepart> spList = new List<CreateTicketSparepart>();
+                    foreach (var sp in sparepart)
+                    {
+                        spList.Add(new CreateTicketSparepart
+                        {
+                            //active = sp.active,
+                            sparepart_code = sp.sparepart_code,
+                            sparepart_name = sp.sparepart_name,
+                            unit_line_no = sp.unit_line_no,
+                            uom = sp.uom,
+                            qty = sp.qty,
+                            product_name = sp.product_name,
+                            created_by = sp.created_by,
+                            created_on = sp.created_on
+                        });
+                    }
+                    List<TicketDetailRespon> datas = new List<TicketDetailRespon>();
+                    TicketDetailRespon detail = new TicketDetailRespon();
+
+                    //ticket_sparepart = convertSparepart,
+                    // ticket_unit = convertUnit,
+                    detail.ticket_no = header.ticket_no;
+                    detail.assign_to = header.assign_to;
+                    detail.assign_name = "sistem";//nanti akan d ambil dari service employee jika sudah publish
+                    detail.customer_id = header.customer_id;
+                    detail.payment_method = header.payment_method;
+                    detail.status = header.status;
+                    detail.service_center = header.service_center;
+                    detail.ticket_sparepart = spList;
+                    detail.ticket_unit = unitList;
+                    datas.Add(detail);
+
+
+
+                    result.data = datas;
                     result.is_ok = true;
                     result.message = "Success";
                 }
