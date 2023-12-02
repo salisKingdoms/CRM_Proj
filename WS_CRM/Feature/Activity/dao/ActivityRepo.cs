@@ -40,7 +40,7 @@ namespace WS_CRM.Feature.Activity.dao
         }
         public async Task CreateWarranty(CreateActivationWarranty request)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             try
             {
                 var sql = " INSERT INTO ws_warranty" +
@@ -86,7 +86,7 @@ namespace WS_CRM.Feature.Activity.dao
         }
         private async Task<IEnumerable<ws_warranty>> RepoGetAllWarranty()
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             var sql = QueryListWarranty(true);
             string sqlALL = sql + "limit @limit offset @offset";
             var param = new Dictionary<string, object>
@@ -98,14 +98,14 @@ namespace WS_CRM.Feature.Activity.dao
         }
         public async Task<int> RepoGetTotalAllWarranty()
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             var sql = QueryListWarranty(false);
             return await connection.QuerySingleOrDefaultAsync<int>(sql);
         }
 
         public async Task<ws_warranty> GetWarrantyById(long id)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             var sql = " select * from ws_warranty where id=@id";
             var param = new Dictionary<string, object>
             {
@@ -117,7 +117,7 @@ namespace WS_CRM.Feature.Activity.dao
 
         public async Task DeleteProductById(long id)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             var sql = @" UPDATE ws_warranty 
             SET active = false,
                 modified_by = @modified_by,
@@ -133,7 +133,7 @@ namespace WS_CRM.Feature.Activity.dao
 
         public async Task UpdateWarranty(ws_warranty param)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             var sql = @"
             UPDATE ws_warranty 
             SET company_code = @company_code,
@@ -152,7 +152,7 @@ namespace WS_CRM.Feature.Activity.dao
        
         public async Task CreateTicketService(CreateTicket request)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             try
             {
                 var sql = " INSERT INTO ws_ticket" +
@@ -191,7 +191,7 @@ namespace WS_CRM.Feature.Activity.dao
         }
         private async Task<IEnumerable<ws_ticket>> RepoGetAllTicket(GlobalFilter filter)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             ws_ticket_database_filter dbModel = new ws_ticket_database_filter();
             (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
             var sql = QueryListTicket(true, whereParam.Item1);
@@ -205,7 +205,7 @@ namespace WS_CRM.Feature.Activity.dao
         }
         public async Task<int> RepoGetTotalAllTicket(GlobalFilter filter)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             ws_ticket_database_filter dbModel = new ws_ticket_database_filter();
             (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
             var sql = QueryListTicket(false, whereParam.Item1);
@@ -224,7 +224,7 @@ namespace WS_CRM.Feature.Activity.dao
 
         public async Task UpdateTicketHeader(ws_ticket param)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             var sql = @"
             UPDATE ws_ticket 
             SET status = @status,
@@ -237,7 +237,7 @@ namespace WS_CRM.Feature.Activity.dao
         }
         public async Task CreateTicketUnit(CreateTicketUnit request)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             try
             {
                 var sql = " INSERT INTO ws_ticket_unit" +
@@ -277,7 +277,7 @@ namespace WS_CRM.Feature.Activity.dao
         }
         private async Task<IEnumerable<ws_ticket_unit>> RepoGetAllTicketUnit(string ticket_no)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             var sql = QueryListTicketUnit(true);
             string queryFilter = " where ticket_no=@ticket_no ";
             string sqlALL = sql + queryFilter ;
@@ -295,7 +295,7 @@ namespace WS_CRM.Feature.Activity.dao
         }
         public async Task<int> RepoGetTotalAllTicketUnit(string ticket_no)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             var sql = QueryListTicketUnit(false);
             string queryFilter = " where ticket_no=@ticket_no ";
             string sqlALL = sql + queryFilter;
@@ -308,7 +308,7 @@ namespace WS_CRM.Feature.Activity.dao
 
         public async Task DeleteTicketUnit(string ticket_no, int? unit_line)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             var sql = @" UPDATE ws_ticket_unit 
             SET active = false,
                 modified_by = @modified_by,
@@ -325,7 +325,7 @@ namespace WS_CRM.Feature.Activity.dao
 
         public async Task UpdateTicketUnit(ws_ticket_unit param)
         {
-            using var connection = _context.ConnectionActivity();
+            using var connection = _context.CreateConnection();
             var sql = @"
             UPDATE ws_ticket_unit 
             SET sku_code = @sku_code,

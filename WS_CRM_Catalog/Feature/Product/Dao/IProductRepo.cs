@@ -1,13 +1,13 @@
-﻿using WS_CRM.Feature.Catalog.dto;
-using WS_CRM.Helper;
-using WS_CRM.Feature.Catalog.Model;
+﻿using WS_CRM_Catalog.Feature.Product.Dto;
+using WS_CRM_Catalog.Helper;
+using WS_CRM_Catalog.Feature.Product.Model;
 using System.Linq;
 using Dapper;
 using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace WS_CRM.Feature.Catalog.dao
+namespace WS_CRM_Catalog.Feature.Product.Dao
 {
     public interface IProductRepo
     {

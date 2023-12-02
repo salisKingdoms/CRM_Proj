@@ -1,4 +1,4 @@
-﻿namespace WS_CRM.Feature.Catalog.Model
+﻿namespace WS_CRM_Catalog.Feature.Product.Model
 {
     public class ms_product
     {

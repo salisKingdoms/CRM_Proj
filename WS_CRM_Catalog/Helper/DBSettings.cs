@@ -1,6 +1,6 @@
-﻿namespace WS_CRM.Helper
+﻿namespace WS_CRM_Catalog.Helper
 {
-    public class DbSettings
+    public class DBSettings
     {
         public string? Server { get; set; }
         public string? Database { get; set; }

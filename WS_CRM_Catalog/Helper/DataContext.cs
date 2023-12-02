@@ -2,13 +2,14 @@
 using Dapper;
 using Microsoft.Extensions.Options;
 using Npgsql;
-namespace WS_CRM.Helper
+using WS_CRM_Catalog.Helper;
+
+namespace WS_CRM_Catalog.Helper
 {
     public class DataContext
     {
-        private DbSettings _dbSettings;
-
-        public DataContext(IOptions<DbSettings> dbSettings)
+        private DBSettings _dbSettings;
+        public DataContext(IOptions<DBSettings> dbSettings)
         {
             _dbSettings = dbSettings.Value;
         }
@@ -18,6 +19,7 @@ namespace WS_CRM.Helper
             var connectionString = $"Host={_dbSettings.Server}; Database={_dbSettings.Database}; Username={_dbSettings.UserId}; Password={_dbSettings.Password};";
             return new NpgsqlConnection(connectionString);
         }
+
         public async Task Init()
         {
             await _initDatabase();
@@ -40,7 +42,7 @@ namespace WS_CRM.Helper
 
         private async Task _initTables()
         {
-            // create tables if they don't exist
+            // create tables if they don't exis
             using var connection = CreateConnection();
 
         }

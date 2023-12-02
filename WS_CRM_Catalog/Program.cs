@@ -1,8 +1,9 @@
 
 using System.Text.Json.Serialization;
-using WS_CRM.Helper;
+using WS_CRM_Catalog.Helper;
 using AutoMapper;
-using WS_CRM.Feature.Activity.dao;
+using WS_CRM_Catalog.Feature.Product.Dao;
+using WS_CRM_Catalog.Feature.Product;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,10 +26,10 @@ builder.Services.AddSwaggerGen();
     services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
     // configure strongly typed settings object
-    services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
+    services.Configure<DBSettings>(builder.Configuration.GetSection("DbSettings"));
     // configure DI for application services
     services.AddSingleton<DataContext>();
-    services.AddScoped<IActivityRepo, ActivityRepo>();
+    services.AddScoped<IProductRepo, ProductRepo>();
 }
 
 var app = builder.Build();

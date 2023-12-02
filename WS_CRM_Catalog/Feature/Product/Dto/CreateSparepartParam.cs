@@ -1,4 +1,4 @@
-﻿namespace WS_CRM.Feature.Catalog.dto
+﻿namespace WS_CRM_Catalog.Feature.Product.Dto
 {
     public class CreateSparepartParam
     {

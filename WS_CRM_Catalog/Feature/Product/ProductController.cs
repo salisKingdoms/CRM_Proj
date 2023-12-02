@@ -1,26 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WS_CRM.Feature.Catalog.dao;
-using WS_CRM.Feature.Catalog.dto;
-using WS_CRM.Feature.Catalog.Model;
-using WS_CRM.Config;
-using WS_CRM.Helper;
+using WS_CRM_Catalog.Feature.Product.Model;
+using WS_CRM_Catalog.Config;
+using WS_CRM_Catalog.Helper;
+using WS_CRM_Catalog.Feature.Product.Dao;
+using WS_CRM_Catalog.Feature.Product.Dto;
 
-//using Microsoft.AspNetCore.Mvc;
-//using WS_CRM.Feature.Customer.dao;
-//using WS_CRM.Config;
-//using WS_CRM.Feature.Customer.dto;
-//using WS_CRM.Feature.Customer.Model;
-//using WS_CRM.Helper;
-
-namespace WS_CRM.Feature.Catalog
+namespace WS_CRM_Catalog.Feature.Product
 {
     [ApiController]
     [Route("[controller]")]
-    public class CatalogController : Controller
+    public class ProductController : Controller
     {
         IProductRepo _prodRepo;
 
-        public CatalogController(IProductRepo prodDao)
+        public ProductController(IProductRepo prodDao)
         {
             _prodRepo = prodDao;
         }

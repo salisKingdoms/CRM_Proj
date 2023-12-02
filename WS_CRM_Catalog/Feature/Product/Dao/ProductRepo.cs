@@ -15,14 +15,15 @@ using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Dapper;
-using WS_CRM.Helper;
-using WS_CRM.Feature.Catalog.Model;
-using WS_CRM.Feature.Catalog.dto;
+using WS_CRM_Catalog.Helper;
+using WS_CRM_Catalog.Feature.Product.Model;
+using WS_CRM_Catalog.Feature.Product.Dto;
 using AutoMapper;
-using WS_CRM.Config;
+using WS_CRM_Catalog.Config;
 
-namespace WS_CRM.Feature.Catalog.dao
+namespace WS_CRM_Catalog.Feature.Product.Dao
 {
+
     public class ProductRepo : IProductRepo
     {
         private DataContext _context;
@@ -41,7 +42,7 @@ namespace WS_CRM.Feature.Catalog.dao
         }
         public async Task CreateProduct(CreateProductParam request)
         {
-            using var connection = _context.ConnectionCatalogue();
+            using var connection = _context.CreateConnection();
             try
             {
                 var sql = " INSERT INTO ms_product" +
@@ -76,7 +77,7 @@ namespace WS_CRM.Feature.Catalog.dao
         }
         private async Task<IEnumerable<ms_product>> RepoGetAllProduct(GlobalFilter filter)
         {
-            using var connection = _context.ConnectionCatalogue();
+            using var connection = _context.CreateConnection();
             ms_product_database_filter dbModel = new ms_product_database_filter();
             (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
             var sql = QueryListProduct(true, whereParam.Item1);
@@ -90,7 +91,7 @@ namespace WS_CRM.Feature.Catalog.dao
         }
         public async Task<int> RepoGetTotalAllProduct(GlobalFilter filter)
         {
-            using var connection = _context.ConnectionCatalogue();
+            using var connection = _context.CreateConnection();
             ms_product_database_filter dbModel = new ms_product_database_filter();
             (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
             var sql = QueryListProduct(false, whereParam.Item1);
@@ -103,7 +104,7 @@ namespace WS_CRM.Feature.Catalog.dao
 
         public async Task<ms_product> GetProductById(long id)
         {
-            using var connection = _context.ConnectionCatalogue();
+            using var connection = _context.CreateConnection();
             var sql = " select * from ms_product where id=@id";
             var param = new Dictionary<string, object>
             {
@@ -115,7 +116,7 @@ namespace WS_CRM.Feature.Catalog.dao
 
         public async Task DeleteProductById(long id)
         {
-            using var connection = _context.ConnectionCatalogue();
+            using var connection = _context.CreateConnection();
             var sql = " delete from ms_product where id=@id";
             var param = new Dictionary<string, object>
             {
@@ -127,7 +128,7 @@ namespace WS_CRM.Feature.Catalog.dao
 
         public async Task UpdateProduct(ms_product param)
         {
-            using var connection = _context.ConnectionCatalogue();
+            using var connection = _context.CreateConnection();
             var sql = @"
             UPDATE ms_product 
             SET product_name = @product_name,
@@ -144,7 +145,7 @@ namespace WS_CRM.Feature.Catalog.dao
         #region Master Sparepart
         public async Task CreateSparepart(CreateSparepartParam request)
         {
-            using var connection = _context.ConnectionCatalogue();
+            using var connection = _context.CreateConnection();
             try
             {
                 var sql = " INSERT INTO ms_sparepart" +
@@ -181,7 +182,7 @@ namespace WS_CRM.Feature.Catalog.dao
         }
         private async Task<IEnumerable<ms_sparepart>> RepoGetAllSparepart(GlobalFilter filter)
         {
-            using var connection = _context.ConnectionCatalogue();
+            using var connection = _context.CreateConnection();
             ms_sparepart_database_filter dbModel = new ms_sparepart_database_filter();
             (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
             var sql = QueryListSparepart(true, whereParam.Item1);
@@ -202,7 +203,7 @@ namespace WS_CRM.Feature.Catalog.dao
 
         public async Task<int> RepoGetTotalAllSparepart(GlobalFilter filter)
         {
-            using var connection = _context.ConnectionCatalogue();
+            using var connection = _context.CreateConnection();
             ms_sparepart_database_filter dbModel = new ms_sparepart_database_filter();
             (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
             var sql = QueryListSparepart(false, whereParam.Item1);
@@ -215,7 +216,7 @@ namespace WS_CRM.Feature.Catalog.dao
 
         public async Task<ms_sparepart> GetSparepartById(long id)
         {
-            using var connection = _context.ConnectionCatalogue();
+            using var connection = _context.CreateConnection();
             var sql = " select * from ms_sparepart where id=@id";
             var param = new Dictionary<string, object>
             {
@@ -227,7 +228,7 @@ namespace WS_CRM.Feature.Catalog.dao
 
         public async Task DeleteSparepartById(long id)
         {
-            using var connection = _context.ConnectionCatalogue();
+            using var connection = _context.CreateConnection();
             var sql = " delete from ms_sparepart where id=@id";
             var param = new Dictionary<string, object>
             {
@@ -239,7 +240,7 @@ namespace WS_CRM.Feature.Catalog.dao
 
         public async Task UpdateSparepart(ms_sparepart param)
         {
-            using var connection = _context.ConnectionCatalogue();
+            using var connection = _context.CreateConnection();
             var sql = @"
             UPDATE ms_sparepart 
             SET sparepart_name = @sparepart_name,

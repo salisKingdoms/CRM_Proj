@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WS_CRM_Employee", "WS_CRM_E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WS_CRM_Customer", "WS_CRM_Customer\WS_CRM_Customer.csproj", "{9D7DE635-7F71-4809-9640-D3EEA2107117}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WS_CRM_Catalog", "WS_CRM_Catalog\WS_CRM_Catalog.csproj", "{0D09F057-2258-40A1-8C3E-DB8B8966C7B8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{9D7DE635-7F71-4809-9640-D3EEA2107117}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D7DE635-7F71-4809-9640-D3EEA2107117}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D7DE635-7F71-4809-9640-D3EEA2107117}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D09F057-2258-40A1-8C3E-DB8B8966C7B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D09F057-2258-40A1-8C3E-DB8B8966C7B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D09F057-2258-40A1-8C3E-DB8B8966C7B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D09F057-2258-40A1-8C3E-DB8B8966C7B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

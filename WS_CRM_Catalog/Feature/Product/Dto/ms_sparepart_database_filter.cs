@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
-using WS_CRM.Config;
+using WS_CRM_Catalog.Config;
 
-namespace WS_CRM.Feature.Catalog.dto
+namespace WS_CRM_Catalog.Feature.Product.Dto
 {
     public class ms_sparepart_database_filter
     {
