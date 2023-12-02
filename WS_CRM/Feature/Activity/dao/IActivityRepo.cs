@@ -34,6 +34,9 @@ namespace WS_CRM.Feature.Activity.dao
         public  Task<int> RepoGetTotalAllTicketSparepart(string ticket_no);
         public  Task DeleteTicketSparepart(string ticket_no, int? unit_line);
         public  Task UpdateTicketSparepart(ws_ticket_unit param);
+
+        //public Task<APIResultList<CustomerRespon>> GetEmployeeByNIP(string NIP, string endpoint);
+        public Task<CustomerRespon> GetCustomerById(string endpoint);
     }
 }
 

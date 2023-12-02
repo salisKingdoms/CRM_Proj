@@ -1,4 +1,5 @@
 
+
 using System.Text.Json.Serialization;
 using WS_CRM.Helper;
 using AutoMapper;
@@ -26,6 +27,7 @@ builder.Services.AddSwaggerGen();
 
     // configure strongly typed settings object
     services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
+   // var appConfig = configh
     // configure DI for application services
     services.AddSingleton<DataContext>();
     services.AddScoped<IActivityRepo, ActivityRepo>();

@@ -4,7 +4,7 @@ using WS_CRM.Config;
 using WS_CRM.Feature.Activity.dto;
 using WS_CRM.Feature.Activity.Model;
 using WS_CRM.Helper;
-using WS_CRM.Feature.Activity.Model;
+using Newtonsoft.Json;
 
 namespace WS_CRM.Feature.Activity
 {
@@ -13,9 +13,11 @@ namespace WS_CRM.Feature.Activity
     public class ActivityController : Controller
     {
         IActivityRepo _actDao;
+        AppConfig _appConfig;
         public ActivityController(IActivityRepo actDao)
         {
             _actDao = actDao;
+           // _appConfig = appConfig;
         }
 
         [HttpPost]
@@ -174,7 +176,7 @@ namespace WS_CRM.Feature.Activity
             return Ok(result);
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("Ticket/GetTicketDetail")]
         public async Task<IActionResult> GetTicketDetail(string ticket_no)
         {
@@ -186,6 +188,8 @@ namespace WS_CRM.Feature.Activity
                    var header = await _actDao.GetTicketHeaderByTicketNo(ticket_no);
                     var unit = await _actDao.GetAllTicketUnit(ticket_no);
                     var sparepart = await _actDao.GetAllTicketSparepart(ticket_no);
+                    var endpointCustomer = "https://localhost:44314/Customer/" + AppConstant.CUSTOMER_GET_DETAIL + "?id=" + header.customer_id;
+                    var customers = await _actDao.GetCustomerById(endpointCustomer);
                     //get customer
                     //get employee for assign to
 

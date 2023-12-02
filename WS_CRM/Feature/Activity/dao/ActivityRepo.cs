@@ -451,5 +451,15 @@ namespace WS_CRM.Feature.Activity.dao
             WHERE ticket_no = @ticket_no";
             await connection.ExecuteAsync(sql, param);
         }
+
+        //public async Task <APIResultList<CustomerRespon>> GetEmployeeByNIP(string NIP,string endpoint )
+        //{
+        //    return CallAPIHelper.RunAPIServiceRequestGET(new CustomerRespon(), endpoint);
+        //}
+
+        public async Task<CustomerRespon> GetCustomerById(string endpoint)
+        {
+            return CallAPIHelper.RunAPIServiceRequestGET(new CustomerRespon(), endpoint);
+        }
     }
 }
