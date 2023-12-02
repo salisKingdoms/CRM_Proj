@@ -348,7 +348,7 @@ namespace WS_CRM.Feature.Activity.dao
                 modified_on = @modified_on
             WHERE id = @id";
             await connection.ExecuteAsync(sql, param);
-        }
+        } 
 
         public async Task CreateTicketSparepart(CreateTicketSparepart request)
         {

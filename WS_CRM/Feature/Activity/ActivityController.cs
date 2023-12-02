@@ -5,6 +5,11 @@ using WS_CRM.Feature.Activity.dto;
 using WS_CRM.Feature.Activity.Model;
 using WS_CRM.Helper;
 using Newtonsoft.Json;
+using Microsoft.VisualBasic;
+using System.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace WS_CRM.Feature.Activity
 {
@@ -143,23 +148,38 @@ namespace WS_CRM.Feature.Activity
                 if (request != null)
                 {
                     string ticketNo = "T0001";//must make logic to generate number automaticly
-                    request.ticket_header.ticket_no = ticketNo;
+                   //equest.ticket_header.ticket_no = ticketNo;
+                    //var header = await _actDao.GetTicketHeaderByTicketNo(ticketNo);
+                    //if (!string.IsNullOrEmpty(header.ticket_no))
+                    //    await _actDao.UpdateTicketHeader(request.ticket_header);
                     await _actDao.CreateTicketService(request.ticket_header);
+
 
                     if (request.ticket_unit != null)
                     {
+                        var unitOld = await _actDao.GetAllTicketUnit(request.ticket_header.ticket_no);
                         foreach (var unit in request.ticket_unit)
                         {
+
                             unit.ticket_no = ticketNo;
+                          //var unReq = HelperObj.convert<ws_ticket_unit, CreateTicketUnit>(unit);
+                            //var unitSame = unitOld.Where(x => x.ticket_no == unit.ticket_no).FirstOrDefault();
+                            //if (unitSame != null)
+                            //    await _actDao.UpdateTicketUnit(unReq);
                             await _actDao.CreateTicketUnit(unit);
                         }
                     }
 
                     if (request.ticket_sparepart != null)
                     {
+                        var spOld = await _actDao.GetAllTicketSparepart(request.ticket_header.ticket_no);
                         foreach (var sparepart in request.ticket_sparepart)
                         {
                             sparepart.ticket_no = ticketNo;
+                           //ar spReq = HelperObj.convert<ws_ticket_sparepart, CreateTicketSparepart>(sparepart);
+                            //r spSame = spOld.Where(x => x.ticket_no == sparepart.ticket_no).FirstOrDefault();
+                            //if (spOld != null)
+                            //    await _actDao.UpdateTicketSparepart(spReq);
                             await _actDao.CreateTicketSparepart(sparepart);
                         }
                     }
@@ -277,6 +297,7 @@ namespace WS_CRM.Feature.Activity
             return Ok(result);
 
         }
+
 
     }
 }
