@@ -18,11 +18,11 @@ namespace WS_CRM.Feature.Activity
     public class ActivityController : Controller
     {
         IActivityRepo _actDao;
-        AppConfig _appConfig;
-        public ActivityController(IActivityRepo actDao)
+        protected readonly IConfiguration _config;
+        public ActivityController(IActivityRepo actDao, IConfiguration config)
         {
             _actDao = actDao;
-            // _appConfig = appConfig;
+            _config = config;
         }
 
         [HttpPost]
@@ -148,10 +148,10 @@ namespace WS_CRM.Feature.Activity
                 if (request != null)
                 {
                     string ticketNo = "T0001";//must make logic to generate number automaticly
-                   //equest.ticket_header.ticket_no = ticketNo;
-                    //var header = await _actDao.GetTicketHeaderByTicketNo(ticketNo);
-                    //if (!string.IsNullOrEmpty(header.ticket_no))
-                    //    await _actDao.UpdateTicketHeader(request.ticket_header);
+                                              //equest.ticket_header.ticket_no = ticketNo;
+                                              //var header = await _actDao.GetTicketHeaderByTicketNo(ticketNo);
+                                              //if (!string.IsNullOrEmpty(header.ticket_no))
+                                              //    await _actDao.UpdateTicketHeader(request.ticket_header);
                     await _actDao.CreateTicketService(request.ticket_header);
 
 
@@ -162,7 +162,7 @@ namespace WS_CRM.Feature.Activity
                         {
 
                             unit.ticket_no = ticketNo;
-                          //var unReq = HelperObj.convert<ws_ticket_unit, CreateTicketUnit>(unit);
+                            //var unReq = HelperObj.convert<ws_ticket_unit, CreateTicketUnit>(unit);
                             //var unitSame = unitOld.Where(x => x.ticket_no == unit.ticket_no).FirstOrDefault();
                             //if (unitSame != null)
                             //    await _actDao.UpdateTicketUnit(unReq);
@@ -176,7 +176,7 @@ namespace WS_CRM.Feature.Activity
                         foreach (var sparepart in request.ticket_sparepart)
                         {
                             sparepart.ticket_no = ticketNo;
-                           //ar spReq = HelperObj.convert<ws_ticket_sparepart, CreateTicketSparepart>(sparepart);
+                            //ar spReq = HelperObj.convert<ws_ticket_sparepart, CreateTicketSparepart>(sparepart);
                             //r spSame = spOld.Where(x => x.ticket_no == sparepart.ticket_no).FirstOrDefault();
                             //if (spOld != null)
                             //    await _actDao.UpdateTicketSparepart(spReq);
@@ -298,6 +298,49 @@ namespace WS_CRM.Feature.Activity
 
         }
 
+        [HttpPost]
+        [Route("UpdateStatusTicket")]
+        public async Task<IActionResult> UpdateStatusTicket(UpdateTicketStatusRequest data)
+        {
+            var result = new APIResultList<ws_ticket>();
+            try
+            {
+                if (!string.IsNullOrEmpty(data.ticket_no))
+                {
+                    var ticket = HelperObj.convert<UpdateTicketStatusRequest, ws_ticket>(data);
+                    ticket.modified_by = "sys";
+                    ticket.modified_on = DateTime.UtcNow;
+                    await _actDao.UpdateTicketStatus(ticket);
+                    result.is_ok = true;
+                    result.message = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to update, please contact administrator";
+            }
+            return Ok(result);
+        }
 
+        [HttpDelete]
+        [Route("DeleteTicketHeader")]
+        public async Task<IActionResult> DeleteTicketHeader(string ticket_no)
+        {
+            var result = new APIResultList<ws_ticket>();
+            try
+            {
+                await _actDao.NonActiveTicketHeader(ticket_no);
+                result.is_ok = true;
+                result.message = "Success";
+
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to delete, please contact administrator";
+            }
+            return Ok(result);
+        }
     }
 }

@@ -12,6 +12,7 @@
         public DateTime? created_on { get; set; }
         public string modified_by { get; set; }
         public DateTime? modified_on { get; set; }
+        public bool active { get; set; }
 
     }
 }

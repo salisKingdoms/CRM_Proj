@@ -55,5 +55,10 @@ namespace WS_CRM.Feature.Activity.dto
         [CustomAttribute("Equal")]
         [Column("modified_on", Order = 10)]
         public DateTime? modified_on { get; set; }
+
+        [DisplayName("active")]
+        [CustomAttribute("Equal")]
+        [Column("active", Order = 11)]
+        public bool? active { get; set; }
     }
 }
