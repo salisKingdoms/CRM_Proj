@@ -195,6 +195,14 @@ namespace WS_CRM.Feature.Activity.dao
             ws_ticket_database_filter dbModel = new ws_ticket_database_filter();
             (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
             var sql = QueryListTicket(true, whereParam.Item1);
+            if(!whereParam.Item1.Contains(" "))
+            {
+                sql += " and active=true";
+            }
+            else
+            {
+                sql += " where active=true";
+            }
             string sqlALL = sql + " limit @limit offset @offset";
             var param = new Dictionary<string, object>
             {
@@ -211,6 +219,14 @@ namespace WS_CRM.Feature.Activity.dao
             ws_ticket_database_filter dbModel = new ws_ticket_database_filter();
             (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
             var sql = QueryListTicket(false, whereParam.Item1);
+            if (!whereParam.Item1.Contains(" "))
+            {
+                sql += " and active=true";
+            }
+            else
+            {
+                sql += " where active=true";
+            }
             var param = new Dictionary<string, object>
             {
 
@@ -458,6 +474,46 @@ namespace WS_CRM.Feature.Activity.dao
             return CallAPIHelper.RunAPIServiceRequestGET(new CustomerRespon(), endpoint);
         }
 
-        
+        public async Task UpdateTicketStatus(ws_ticket request)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = @"
+            UPDATE ws_ticket 
+            SET status = @status,
+                modified_by = @modified_by,
+                modified_on = @modified_on
+            WHERE ticket_no = @ticket_no";
+
+            var param = new Dictionary<string, object>
+            {
+                { "ticket_no", request.ticket_no ?? ""  },
+                { "status",request.status ?? "" },
+                { "modified_by", request.modified_by??"" },
+                { "modified_on", request.modified_on ?? null}
+
+            };
+            await connection.ExecuteAsync(sql, param);
+        }
+
+        public async Task NonActiveTicketHeader(string ticket_no)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = @"
+            UPDATE ws_ticket 
+            SET active = false,
+                modified_by = @modified_by,
+                modified_on = @modified_on
+            WHERE ticket_no = @ticket_no";
+
+            var param = new Dictionary<string, object>
+            {
+                { "ticket_no", ticket_no ?? ""  },
+                { "modified_by","sys" },
+                { "modified_on", DateTime.UtcNow}
+
+            };
+            await connection.ExecuteAsync(sql, param);
+        }
+
     }
 }

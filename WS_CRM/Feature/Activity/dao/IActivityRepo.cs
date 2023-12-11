@@ -37,6 +37,8 @@ namespace WS_CRM.Feature.Activity.dao
 
         //public Task<APIResultList<CustomerRespon>> GetEmployeeByNIP(string NIP, string endpoint);
         public Task<CustomerRespon> GetCustomerById(string endpoint);
+        public Task UpdateTicketStatus(ws_ticket request);
+        public  Task NonActiveTicketHeader(string ticket_no);
     }
 }
 

@@ -57,4 +57,10 @@
         public List<CreateTicketSparepart> ticket_sparepart { get; set; }
         public CustomerRespon customer { get; set; }
     }
+
+    public class UpdateTicketStatusRequest
+    {
+        public string? ticket_no { get; set; }
+        public string? status { get; set; }
+    }
 }
