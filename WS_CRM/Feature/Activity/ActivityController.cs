@@ -19,8 +19,10 @@ namespace WS_CRM.Feature.Activity
     {
         IActivityRepo _actDao;
         protected readonly IConfiguration _config;
-        public ActivityController(IActivityRepo actDao, IConfiguration config)
+        private readonly ILogger<ActivityController> _logger;
+        public ActivityController(ILogger<ActivityController> logger,IActivityRepo actDao, IConfiguration config)
         {
+            _logger = logger;
             _actDao = actDao;
             _config = config;
         }
@@ -30,6 +32,8 @@ namespace WS_CRM.Feature.Activity
         public async Task<IActionResult> CreateWarranty(CreateActivationWarranty request)
         {
             var result = new APIResultList<List<ws_warranty>>();
+            var bodyJson = JsonConvert.SerializeObject(request);
+            _logger.LogInformation(HelperLog.GetRequestLog("CreateWarranty", bodyJson));
             try
             {
                 if (request != null)
@@ -37,12 +41,14 @@ namespace WS_CRM.Feature.Activity
                     await _actDao.CreateWarranty(request);
                     result.is_ok = true;
                     result.message = "Success";
+                    _logger.LogInformation(HelperLog.GetResponseSuccessLog("CreateWarranty", JsonConvert.SerializeObject(result)));
                 }
             }
             catch (Exception ex)
             {
                 result.is_ok = false;
                 result.message = "Data failed to submit, please contact administrator";
+                _logger.LogInformation(HelperLog.GetResponseErrorLog("CreateWarranty", JsonConvert.SerializeObject(result)));
             }
             return Ok(result);
         }
@@ -52,6 +58,7 @@ namespace WS_CRM.Feature.Activity
         public async Task<IActionResult> GetWarrantyList()
         {
             var result = new APIResultList<List<ws_warranty>>();
+            
             try
             {
                 var data = await _actDao.GetAllWarranty();
