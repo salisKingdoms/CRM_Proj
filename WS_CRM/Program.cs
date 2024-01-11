@@ -1,9 +1,13 @@
 
-
 using System.Text.Json.Serialization;
 using WS_CRM.Helper;
 using AutoMapper;
 using WS_CRM.Feature.Activity.dao;
+using NLog;
+using NLog.Web;
+
+var logger = NLog.LogManager.Setup().RegisterNLogWeb().GetCurrentClassLogger();
+logger.Debug("init main");
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +37,10 @@ builder.Services.AddSwaggerGen();
     services.AddScoped<IActivityRepo, ActivityRepo>();
 }
 
+builder.Logging.ClearProviders();
+builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+builder.Host.UseNLog();
+
 var app = builder.Build();
 
 // ensure database and tables exist
@@ -42,23 +50,7 @@ var app = builder.Build();
     await context.Init();
 }
 
-// configure HTTP request pipeline
-//{
-//    // global cors policy
-//    app.UseCors(x => x
-//        .AllowAnyOrigin()
-//        .AllowAnyMethod()
-//        .AllowAnyHeader());
 
-//    // global error handler
-//    app.UseMiddleware<ErrorHandlerMiddleware>();
-
-//    app.MapControllers();
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-//app.Run();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
