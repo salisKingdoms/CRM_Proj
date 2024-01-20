@@ -70,7 +70,8 @@ namespace WS_CRM.Feature.Activity
             }
             catch (Exception ex)
             {
-
+                result.is_ok = false;
+                result.message = "Data Not Found";
             }
 
             return Ok(result);
@@ -127,6 +128,8 @@ namespace WS_CRM.Feature.Activity
         public async Task<IActionResult> UpdateWarranty(UpdateWarrantyRequest data)
         {
             var result = new APIResultList<ws_warranty>();
+            var bodyJson = JsonConvert.SerializeObject(data);
+            _logger.LogInformation(HelperLog.GetRequestLog("UpdateWarranty", bodyJson));
             try
             {
                 if (data != null && data.id > 0)
@@ -135,12 +138,14 @@ namespace WS_CRM.Feature.Activity
                     await _actDao.UpdateWarranty(prod);
                     result.is_ok = true;
                     result.message = "Success";
+                    _logger.LogInformation(HelperLog.GetResponseSuccessLog("UpdateWarranty", JsonConvert.SerializeObject(result)));
                 }
             }
             catch (Exception ex)
             {
                 result.is_ok = false;
                 result.message = "Data failed to update, please contact administrator";
+                _logger.LogInformation(HelperLog.GetResponseErrorLog("UpdateWarranty", JsonConvert.SerializeObject(result)));
             }
             return Ok(result);
         }
