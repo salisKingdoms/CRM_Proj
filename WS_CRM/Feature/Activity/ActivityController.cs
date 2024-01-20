@@ -10,6 +10,7 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WS_CRM.Feature.Activity
 {
@@ -20,17 +21,22 @@ namespace WS_CRM.Feature.Activity
         IActivityRepo _actDao;
         protected readonly IConfiguration _config;
         private readonly ILogger<ActivityController> _logger;
-        public ActivityController(ILogger<ActivityController> logger,IActivityRepo actDao, IConfiguration config)
+        private readonly IJwtFunction _jwtFunction;
+        public ActivityController(ILogger<ActivityController> logger,IActivityRepo actDao, IConfiguration config, IJwtFunction jwtFunction)
         {
             _logger = logger;
             _actDao = actDao;
             _config = config;
+            _jwtFunction = jwtFunction;
         }
 
         [HttpPost]
         [Route("CreateWarranty")]
         public async Task<IActionResult> CreateWarranty(CreateActivationWarranty request)
         {
+            var tokenVerification = _jwtFunction.TokenVerification(Request);
+            if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
+
             var result = new APIResultList<List<ws_warranty>>();
             var bodyJson = JsonConvert.SerializeObject(request);
             _logger.LogInformation(HelperLog.GetRequestLog("CreateWarranty", bodyJson));
@@ -57,6 +63,9 @@ namespace WS_CRM.Feature.Activity
         [Route("GetWarrantyList")]
         public async Task<IActionResult> GetWarrantyList()
         {
+            var tokenVerification = _jwtFunction.TokenVerification(Request);
+            if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
+
             var result = new APIResultList<List<ws_warranty>>();
             
             try
@@ -82,6 +91,9 @@ namespace WS_CRM.Feature.Activity
         [Route("GetDetailWarrantybyId")]
         public async Task<IActionResult> GetDetailWarrantybyId(long id)
         {
+            var tokenVerification = _jwtFunction.TokenVerification(Request);
+            if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
+
             var result = new APIResultList<ws_warranty>();
             try
             {
@@ -105,6 +117,9 @@ namespace WS_CRM.Feature.Activity
         [Route("DeleteWarrantybyId")]
         public async Task<IActionResult> DeleteWarrantybyId(long id)
         {
+            var tokenVerification = _jwtFunction.TokenVerification(Request);
+            if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
+
             var result = new APIResultList<ws_warranty>();
             try
             {
@@ -127,6 +142,9 @@ namespace WS_CRM.Feature.Activity
         [Route("UpdateWarranty")]
         public async Task<IActionResult> UpdateWarranty(UpdateWarrantyRequest data)
         {
+            var tokenVerification = _jwtFunction.TokenVerification(Request);
+            if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
+
             var result = new APIResultList<ws_warranty>();
             var bodyJson = JsonConvert.SerializeObject(data);
             _logger.LogInformation(HelperLog.GetRequestLog("UpdateWarranty", bodyJson));
@@ -154,6 +172,9 @@ namespace WS_CRM.Feature.Activity
         [Route("Ticket/CreateTicket")]
         public async Task<IActionResult> CreateTicket(CreateTiketBase request)
         {
+            var tokenVerification = _jwtFunction.TokenVerification(Request);
+            if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
+
             var result = new APIResultList<List<ws_ticket>>();
             try
             {
@@ -212,6 +233,9 @@ namespace WS_CRM.Feature.Activity
         [Route("Ticket/GetTicketDetail")]
         public async Task<IActionResult> GetTicketDetail(string ticket_no)
         {
+            var tokenVerification = _jwtFunction.TokenVerification(Request);
+            if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
+
             var result = new APIResultList<List<TicketDetailRespon>>();
             try
             {
@@ -291,6 +315,9 @@ namespace WS_CRM.Feature.Activity
         [Route("GetTicketList")]
         public async Task<IActionResult> GetTicketList(GlobalFilter filter)
         {
+            var tokenVerification = _jwtFunction.TokenVerification(Request);
+            if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
+
             var result = new APIResultList<List<ws_ticket>>();
             try
             {
@@ -314,6 +341,9 @@ namespace WS_CRM.Feature.Activity
         [Route("UpdateStatusTicket")]
         public async Task<IActionResult> UpdateStatusTicket(UpdateTicketStatusRequest data)
         {
+            var tokenVerification = _jwtFunction.TokenVerification(Request);
+            if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
+
             var result = new APIResultList<ws_ticket>();
             try
             {
@@ -339,6 +369,9 @@ namespace WS_CRM.Feature.Activity
         [Route("DeleteTicketHeader")]
         public async Task<IActionResult> DeleteTicketHeader(string ticket_no)
         {
+            var tokenVerification = _jwtFunction.TokenVerification(Request);
+            if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
+
             var result = new APIResultList<ws_ticket>();
             try
             {
