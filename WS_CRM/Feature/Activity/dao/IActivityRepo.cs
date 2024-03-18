@@ -1,5 +1,6 @@
 ﻿using WS_CRM.Feature.Activity.dto;
 using WS_CRM.Helper;
+using WS_CRM.Config;
 using WS_CRM.Feature.Activity.Model;
 using System.Linq;
 using Dapper;
@@ -34,11 +35,10 @@ namespace WS_CRM.Feature.Activity.dao
         public  Task<int> RepoGetTotalAllTicketSparepart(string ticket_no);
         public  Task DeleteTicketSparepart(string ticket_no, int? unit_line);
         public  Task UpdateTicketSparepart(ws_ticket_unit param);
-
-        //public Task<APIResultList<CustomerRespon>> GetEmployeeByNIP(string NIP, string endpoint);
-        public Task<CustomerRespon> GetCustomerById(string endpoint);
+        public Task<APIResult<CustomerRespon>> GetCustomerById(string endpoint);
         public Task UpdateTicketStatus(ws_ticket request);
         public  Task NonActiveTicketHeader(string ticket_no);
+        public Task<APIResult<EmployeeRespon>> GetEmployeeByNIP(string endpoint);
     }
 }
 

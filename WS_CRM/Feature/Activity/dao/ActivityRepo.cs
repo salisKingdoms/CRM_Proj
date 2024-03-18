@@ -469,9 +469,9 @@ namespace WS_CRM.Feature.Activity.dao
             WHERE ticket_no = @ticket_no";
             await connection.ExecuteAsync(sql, param);
         }
-        public async Task<CustomerRespon> GetCustomerById(string endpoint)
+        public async Task<APIResult<CustomerRespon>> GetCustomerById(string endpoint)
         {
-            return CallAPIHelper.RunAPIServiceRequestGET(new CustomerRespon(), endpoint);
+            return CallAPIHelper.RunAPIServiceRequestGET(new APIResult<CustomerRespon>(), endpoint);
         }
 
         public async Task UpdateTicketStatus(ws_ticket request)
@@ -513,6 +513,11 @@ namespace WS_CRM.Feature.Activity.dao
 
             };
             await connection.ExecuteAsync(sql, param);
+        }
+
+        public async Task<APIResult<EmployeeRespon>> GetEmployeeByNIP(string endpoint)
+        {
+            return CallAPIHelper.RunAPIServiceRequestGET(new APIResult<EmployeeRespon>(), endpoint);
         }
 
     }
