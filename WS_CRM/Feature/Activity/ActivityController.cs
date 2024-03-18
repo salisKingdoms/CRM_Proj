@@ -244,10 +244,14 @@ namespace WS_CRM.Feature.Activity
                     var header = await _actDao.GetTicketHeaderByTicketNo(ticket_no);
                     var unit = await _actDao.GetAllTicketUnit(ticket_no);
                     var sparepart = await _actDao.GetAllTicketSparepart(ticket_no);
-                    //var endpointCustomer = "https://localhost:44314/Customer/" + AppConstant.CUSTOMER_GET_DETAIL + "?id=" + header.customer_id;
-                    // var customers = await _actDao.GetCustomerById(endpointCustomer);
-                    //get customer
-                    //get employee for assign to
+                    //get customer from WS_CRM_CUSTOMER_SERVICE with localhost path
+                    var endpointCustomer = "https://localhost:44314/Customer/" + AppConstant.CUSTOMER_GET_DETAIL + "?id=" + header.customer_id;
+                    var customers = await _actDao.GetCustomerById(endpointCustomer);
+
+                    //get employee from WS_CRM_CEmployee with localhost path
+                    var endpointEmployee = "https://localhost:44351/Employee/" + AppConstant.EMPLOYEE_GET_DETAIL + "?nip=" + header.assign_to;
+                    var employees = await _actDao.GetEmployeeByNIP(endpointEmployee);
+                    
                     List<CreateTicketUnit> unitList = new List<CreateTicketUnit>();
                     foreach (var item_u in unit)
                     {
@@ -287,7 +291,7 @@ namespace WS_CRM.Feature.Activity
                     // ticket_unit = convertUnit,
                     detail.ticket_no = header.ticket_no;
                     detail.assign_to = header.assign_to;
-                    detail.assign_name = "sistem";//nanti akan d ambil dari service employee jika sudah publish
+                    detail.assign_name = employees.data.name;
                     detail.customer_id = header.customer_id;
                     detail.payment_method = header.payment_method;
                     detail.status = header.status;
