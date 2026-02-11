@@ -23,6 +23,7 @@
         public bool active { get; set; }
         public string created_by { get; set; }
         public DateTime? created_on { get; set; }
+        public string complaint_text { get; set; }
     }
 
     public class CreateTicketSparepart

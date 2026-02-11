@@ -1,16 +1,17 @@
 
-using System.Text.Json.Serialization;
-using WS_CRM.Helper;
 using AutoMapper;
-using WS_CRM.Feature.Activity.dao;
-using NLog;
-using NLog.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Microsoft.OpenApi.Models;
-using WS_CRM.Config;
+using NLog;
+using NLog.Web;
 using Swashbuckle.AspNetCore.Filters;
+using System.Text;
+using System.Text.Json.Serialization;
+using WS_CRM.BackgroundJob;
+using WS_CRM.Config;
+using WS_CRM.Feature.Activity.dao;
+using WS_CRM.Helper;
 
 var logger = NLog.LogManager.Setup().RegisterNLogWeb().GetCurrentClassLogger();
 logger.Debug("init main");
@@ -67,6 +68,9 @@ builder.Configuration.Bind("AppConfig", config);
 builder.Services.AddSingleton(config);
 
 builder.Services.AddSingleton<IJwtFunction, JwtFunction>();
+builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+builder.Services.AddHostedService<AIWorker>();
+builder.Services.AddHttpClient<GroqAIService>();
 // add services to DI container
 {
     var services = builder.Services;

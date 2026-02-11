@@ -298,6 +298,42 @@ namespace WS_CRM.Feature.Activity.dao
 
         }
 
+        public async Task<int> CreateTicketUnitRetID(CreateTicketUnit request)
+        {
+            using var connection = _context.CreateConnection();
+
+            var sql = @"
+                        INSERT INTO ws_ticket_unit
+                        (ticket_no, sku_code, product_name, qty, unit_line_no,
+                            warranty_no, active, created_by, created_on,
+                        modified_by, modified_on)
+                        VALUES
+                        (@ticket_no, @sku_code, @product_name, @qty, @unit_line_no,
+                         @warranty_no, @active, @created_by, @created_on,
+                         @modified_by, @modified_on)
+                         ;
+                        ";
+
+            var param = new
+            {
+                ticket_no = request.ticket_no ?? "",
+                sku_code = request.sku_code ?? "",
+                product_name = request.product_name ?? "",
+                qty = request.qty,
+                unit_line_no = request.unit_line_no,
+                warranty_no = request.warranty_no ?? "",
+                active = request.active,
+                created_by = request.created_by ?? "",
+                created_on = request.created_on,
+                modified_by = (string?)null,
+                modified_on = (DateTime?)null
+            };
+
+            var insertedId = await connection.ExecuteScalarAsync<int>(sql, param);
+
+            return insertedId;
+        }
+
         private string QueryListTicketUnit(bool isList)
         {
 

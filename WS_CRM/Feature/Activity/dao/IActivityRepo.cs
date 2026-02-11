@@ -25,6 +25,7 @@ namespace WS_CRM.Feature.Activity.dao
         public  Task UpdateTicketHeader(ws_ticket param);
 
         public Task CreateTicketUnit(CreateTicketUnit request);
+        public Task<int> CreateTicketUnitRetID(CreateTicketUnit request);
         public Task<List<ws_ticket_unit>> GetAllTicketUnit(string ticket_no);
         public Task<int> RepoGetTotalAllTicketUnit(string ticket_no);
         public Task DeleteTicketUnit(string ticket_no, int? unit_line);

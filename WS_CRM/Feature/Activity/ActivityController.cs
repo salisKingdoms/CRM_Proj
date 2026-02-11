@@ -1,16 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WS_CRM.Feature.Activity.dao;
-using WS_CRM.Config;
-using WS_CRM.Feature.Activity.dto;
-using WS_CRM.Feature.Activity.Model;
-using WS_CRM.Helper;
-using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
-using System.Linq;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+using WS_CRM.BackgroundJob;
+using WS_CRM.Config;
+using WS_CRM.Feature.Activity.dao;
+using WS_CRM.Feature.Activity.dto;
+using WS_CRM.Feature.Activity.Model;
+using WS_CRM.Helper;
 
 namespace WS_CRM.Feature.Activity
 {
@@ -22,12 +23,15 @@ namespace WS_CRM.Feature.Activity
         protected readonly IConfiguration _config;
         private readonly ILogger<ActivityController> _logger;
         private readonly IJwtFunction _jwtFunction;
-        public ActivityController(ILogger<ActivityController> logger,IActivityRepo actDao, IConfiguration config, IJwtFunction jwtFunction)
+        private readonly IBackgroundTaskQueue _queue;
+        private readonly GroqAIService _groqAiService;
+        public ActivityController(ILogger<ActivityController> logger,IActivityRepo actDao, IConfiguration config, IJwtFunction jwtFunction, IBackgroundTaskQueue AIqueue)
         {
             _logger = logger;
             _actDao = actDao;
             _config = config;
             _jwtFunction = jwtFunction;
+            _queue = AIqueue;
         }
 
         [HttpPost]
@@ -180,7 +184,7 @@ namespace WS_CRM.Feature.Activity
             {
                 if (request != null)
                 {
-                    string ticketNo = "T0001";//must make logic to generate number automaticly
+                    string ticketNo = "T0008";//must make logic to generate number automaticly
                                               //equest.ticket_header.ticket_no = ticketNo;
                                               //var header = await _actDao.GetTicketHeaderByTicketNo(ticketNo);
                                               //if (!string.IsNullOrEmpty(header.ticket_no))
@@ -199,7 +203,18 @@ namespace WS_CRM.Feature.Activity
                             //var unitSame = unitOld.Where(x => x.ticket_no == unit.ticket_no).FirstOrDefault();
                             //if (unitSame != null)
                             //    await _actDao.UpdateTicketUnit(unReq);
-                            await _actDao.CreateTicketUnit(unit);
+                            //await _actDao.CreateTicketUnit(unit);
+                             await _actDao.CreateTicketUnit(unit);
+                            // 👉 enqueue AI classification
+                            if (!string.IsNullOrEmpty(unit.complaint_text))
+                            {
+                                await _queue.EnqueueAsync(new AIJob
+                                {
+                                    WarrantyNo = unit.warranty_no,
+                                    UnitId = unit.unit_line_no,
+                                    ComplaintText = unit.complaint_text
+                                });
+                            }
                         }
                     }
 
