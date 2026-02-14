@@ -28,13 +28,15 @@ namespace WS_CRM.BackgroundJob
             using var connection = _context.CreateConnection();
             var aiResult = await CallGroqApi(complaint);
 
-            var sql = @"
+            var insertLOG = @"
             INSERT INTO ws_ticket_unit_ai
             (warranty_no, complaint_text, ai_category, ai_severity,
              ai_suggested_action, created_on,created_by, ticket_unit_id )
             VALUES (@WarrantyNo, @Complaint, @Category,
                     @Severity, @Action,@CreatedON, @CreatedBy, @UnitID )";
 
+            var updateUnit = @" UPDATE ws_ticket_unit SET ai_category=@Category, ai_severity=@Severity, ai_last_processed=@CreatedON 
+                                WHERE unit_line_no=@UnitID AND warranty_no=@WarrantyNo";
 
             var param = new Dictionary<string, object>
             {
@@ -48,7 +50,8 @@ namespace WS_CRM.BackgroundJob
                 { "CreatedON", DateTime.UtcNow },
 
             };
-            await connection.ExecuteAsync(sql, param);
+            await connection.ExecuteAsync(insertLOG + ";" + updateUnit, param);
+
         }
 
 
@@ -113,7 +116,7 @@ namespace WS_CRM.BackgroundJob
                     severity = "Low"
                 };
             }
-           
+
         }
 
         private string ExtractJson(string text)
