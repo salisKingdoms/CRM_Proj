@@ -30,4 +30,12 @@
         public DateTime? start_date { get; set; }
         public DateTime? end_date { get; set; }
     }
+
+    public class GetListAllTicketRequest
+    {
+        public int page {get;set;}
+        public int size {get;set;}
+        public bool sortBy {get;set;}
+        public string orderBy {get;set;}
+    }
 }

@@ -25,13 +25,15 @@ namespace WS_CRM.Feature.Activity
         private readonly IJwtFunction _jwtFunction;
         private readonly IBackgroundTaskQueue _queue;
         private readonly GroqAIService _groqAiService;
-        public ActivityController(ILogger<ActivityController> logger,IActivityRepo actDao, IConfiguration config, IJwtFunction jwtFunction, IBackgroundTaskQueue AIqueue)
+        private readonly ActivityService _activityService;
+        public ActivityController(ILogger<ActivityController> logger,IActivityRepo actDao, IConfiguration config, IJwtFunction jwtFunction, IBackgroundTaskQueue AIqueue, ActivityService actService)
         {
             _logger = logger;
             _actDao = actDao;
             _config = config;
             _jwtFunction = jwtFunction;
             _queue = AIqueue;
+            _activityService = actService;
         }
 
         [HttpPost]
@@ -65,20 +67,21 @@ namespace WS_CRM.Feature.Activity
 
         [HttpGet]
         [Route("GetWarrantyList")]
-        public async Task<IActionResult> GetWarrantyList()
+        [SwaggerOrderBy(typeof(ws_warranty))]
+        public async Task<IActionResult> GetWarrantyList([FromQuery] GlobalFilter request)
         {
             var tokenVerification = _jwtFunction.TokenVerification(Request);
             if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
 
-            var result = new APIResultList<List<ws_warranty>>();
+            var result = new APIResultList<List<WarrantyListRespon>>();
             
             try
             {
-                var data = await _actDao.GetAllWarranty();
-                var totalData = await _actDao.RepoGetTotalAllWarranty();
+                var newData = await _activityService.GetListWaranty(request);
+                var totalData = await _actDao.RepoGetTotalAllWarranty(request);
                 result.is_ok = true;
                 result.message = "Success";
-                result.data = data.ToList();
+                result.data = newData.ToList();
                 result.totalRow = totalData;
             }
             catch (Exception ex)
@@ -184,7 +187,7 @@ namespace WS_CRM.Feature.Activity
             {
                 if (request != null)
                 {
-                    string ticketNo = "T0008";//must make logic to generate number automaticly
+                    string ticketNo = "T0009";//must make logic to generate number automaticly
                                               //equest.ticket_header.ticket_no = ticketNo;
                                               //var header = await _actDao.GetTicketHeaderByTicketNo(ticketNo);
                                               //if (!string.IsNullOrEmpty(header.ticket_no))

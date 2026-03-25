@@ -33,9 +33,9 @@ namespace WS_CRM.Feature.Activity.dao
             _mapper = mapper;
         }
 
-        public async Task<List<ws_warranty>> GetAllWarranty()
+        public async Task<List<ws_warranty>> GetAllWarranty(GlobalFilter filter)
         {
-            var data = RepoGetAllWarranty().Result.ToList();
+            var data = RepoGetAllWarranty(filter).Result.ToList();
             return data;
         }
         public async Task CreateWarranty(CreateActivationWarranty request)
@@ -84,19 +84,31 @@ namespace WS_CRM.Feature.Activity.dao
             query += " where active=true ";
             return query;
         }
-        private async Task<IEnumerable<ws_warranty>> RepoGetAllWarranty()
+        private async Task<IEnumerable<ws_warranty>> RepoGetAllWarranty( GlobalFilter filter)
         {
             using var connection = _context.CreateConnection();
+            //  ws_warranty dbModel = new ws_warranty();
+            // (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
+            
             var sql = QueryListWarranty(true);
-            string sqlALL = sql + "limit @limit offset @offset";
+            if(filter.order_by!=null && filter.sort_by!= null)
+            {
+
+                var column = OrderByOperationFilter.ValidateOrderBy<ws_warranty>(filter.order_by);
+                string sort =  filter.sort_by == SortDirection.Desc ? "DESC" : "ASC";
+                sql += $@" ORDER BY {column} {sort}";
+                
+            }
+
+            string sqlALL = sql + "  limit @limit offset @offset";
             var param = new Dictionary<string, object>
             {
-                { "limit",20},
-                { "offset",0}
+                { "limit",filter.limit ?? 10},
+                { "offset",filter.offset?? 0}
             };
-            return await connection.QueryAsync<ws_warranty>(sql,param);
+            return await connection.QueryAsync<ws_warranty>(sqlALL,param);
         }
-        public async Task<int> RepoGetTotalAllWarranty()
+        public async Task<int> RepoGetTotalAllWarranty(GlobalFilter filter)
         {
             using var connection = _context.CreateConnection();
             var sql = QueryListWarranty(false);

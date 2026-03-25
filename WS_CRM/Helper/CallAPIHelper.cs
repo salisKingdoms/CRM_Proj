@@ -260,5 +260,19 @@ namespace WS_CRM.Helper
 
             return response;
         }
+    
+        public static string ValidateOrderBy<T>(string orderBy)
+        {
+            if (string.IsNullOrEmpty(orderBy))
+                return null;
+
+            var properties = typeof(T).GetProperties()
+                                  .Select(p => p.Name.ToLower());
+
+            if (properties.Contains(orderBy.ToLower()))
+                return orderBy;
+
+            throw new ArgumentException("Invalid order by column");
+        }
     }
 }

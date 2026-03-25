@@ -61,6 +61,7 @@ builder.Services.AddSwaggerGen(options =>
 
     });
   
+    options.OperationFilter<OrderByOperationFilter>();
 });
 
 var config = new AppConfig();
@@ -71,6 +72,7 @@ builder.Services.AddSingleton<IJwtFunction, JwtFunction>();
 builder.Services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
 builder.Services.AddHostedService<AIWorker>();
 builder.Services.AddHttpClient<GroqAIService>();
+
 // add services to DI container
 {
     var services = builder.Services;
@@ -86,13 +88,14 @@ builder.Services.AddHttpClient<GroqAIService>();
         x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
     services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+    
     // configure strongly typed settings object
     services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
     // var appConfig = configh
     // configure DI for application services
     services.AddSingleton<DataContext>();
     services.AddScoped<IActivityRepo, ActivityRepo>();
+    services.AddScoped<ActivityService>();
 }
 
 builder.Logging.ClearProviders();

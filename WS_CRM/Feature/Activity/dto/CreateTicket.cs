@@ -64,4 +64,26 @@
         public string? ticket_no { get; set; }
         public string? status { get; set; }
     }
+
+    public class WarrantyListRespon
+    { 
+        public string WarrantyCode { get; set; }
+        public string? CompanyCode { get; set; }
+        public string? InvoiceNumber { get; set; }
+        public DateTime? InvoiceDate { get; set; }
+        public string? ArticleUnitCode { get; set; }
+        public string? ArticleUnitName { get; set; }
+        public string? SerialNumber { get; set; }
+        public DateTime? StartDateWarranty { get; set; }
+        public DateTime? ExpiredDate { get; set; }
+        public string ActivatedBy { get; set; }
+        public DateTime? ActivatedOn { get; set; }
+        public bool Status { get; set; }
+        public string CreatedBy { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public string UpdatedBy { get; set; }
+        public DateTime? UpdatedOn { get; set; }
+    }
+
+    
 }

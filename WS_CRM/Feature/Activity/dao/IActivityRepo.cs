@@ -13,8 +13,8 @@ namespace WS_CRM.Feature.Activity.dao
     public interface IActivityRepo
     {
         public Task CreateWarranty(CreateActivationWarranty request);
-        public Task<List<ws_warranty>> GetAllWarranty();
-        public Task<int> RepoGetTotalAllWarranty();
+        public Task<List<ws_warranty>> GetAllWarranty(GlobalFilter filter);
+        public Task<int> RepoGetTotalAllWarranty(GlobalFilter filter);
         public Task<ws_warranty> GetWarrantyById(long id);
         public Task DeleteWarrantyById(long id);
         public Task UpdateWarranty(ws_warranty param);
