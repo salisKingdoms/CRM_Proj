@@ -41,8 +41,7 @@ namespace WS_CRM.Feature.Activity.dao
         public async Task CreateWarranty(CreateActivationWarranty request)
         {
             using var connection = _context.CreateConnection();
-            try
-            {
+     
                 var sql = " INSERT INTO ws_warranty" +
                         "(warranty_no, company_code, invoice_no, invoice_date, article_code, article_name, serial_no, start_date,end_date,activate_by,activate_on,active,created_by,created_on,modified_by,modified_on,warranty_code" +
                         ")" +
@@ -70,11 +69,6 @@ namespace WS_CRM.Feature.Activity.dao
 
             };
                 await connection.ExecuteAsync(sql, param);
-            }
-            catch(Exception ex)
-            {
-                string s = ex.Message;
-            }
 
         }
 
@@ -115,29 +109,29 @@ namespace WS_CRM.Feature.Activity.dao
             return await connection.QuerySingleOrDefaultAsync<int>(sql);
         }
 
-        public async Task<ws_warranty> GetWarrantyById(long id)
+        public async Task<ws_warranty> GetWarrantyByWrrantyNo(string warrantyCode)
         {
             using var connection = _context.CreateConnection();
-            var sql = " select * from ws_warranty where id=@id";
+            var sql = " select * from ws_warranty where warranty_code=@no";
             var param = new Dictionary<string, object>
             {
-                { "id", id  },
+                { "no", warrantyCode  },
 
             };
             return await connection.QuerySingleOrDefaultAsync<ws_warranty>(sql, param);
         }
 
-        public async Task DeleteWarrantyById(long id)
+        public async Task DeleteWarrantyByWarrantyCode(string warrantyCode)
         {
             using var connection = _context.CreateConnection();
             var sql = @" UPDATE ws_warranty 
             SET active = false,
-                modified_by = @modified_by,
-                modified_on = @modified_on
-            WHERE id = @id"; 
+                modified_by = 'system',
+                modified_on = NOW()
+            WHERE warranty_code = @code"; 
             var param = new Dictionary<string, object>
             {
-                { "id", id  },
+                { "code", warrantyCode  },
 
             };
             await connection.ExecuteAsync(sql, param);
@@ -158,7 +152,7 @@ namespace WS_CRM.Feature.Activity.dao
                 end_date = @end_date,
                 modified_by = @modified_by,
                 modified_on = @modified_on
-            WHERE id = @id";
+            WHERE warranty_code = @warranty_code";
             await connection.ExecuteAsync(sql, param);
         }
        
@@ -568,5 +562,13 @@ namespace WS_CRM.Feature.Activity.dao
             return CallAPIHelper.RunAPIServiceRequestGET(new APIResult<EmployeeRespon>(), endpoint);
         }
 
+        public async Task<int> GetLastTicketNumber()
+        {
+            using var connection = _context.CreateConnection();
+            var sql = " SELECT COUNT(*) FROM ws_ticket WHERE CAST(created_on AS DATE) = CAST(NOW() AS DATE)";
+            var param = new Dictionary<string, object>{};
+
+            return await connection.QuerySingleOrDefaultAsync<int>(sql, param);
+        }
     }
 }

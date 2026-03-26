@@ -15,8 +15,8 @@ namespace WS_CRM.Feature.Activity.dao
         public Task CreateWarranty(CreateActivationWarranty request);
         public Task<List<ws_warranty>> GetAllWarranty(GlobalFilter filter);
         public Task<int> RepoGetTotalAllWarranty(GlobalFilter filter);
-        public Task<ws_warranty> GetWarrantyById(long id);
-        public Task DeleteWarrantyById(long id);
+        public Task<ws_warranty> GetWarrantyByWrrantyNo(string warrantyCode);
+        public Task DeleteWarrantyByWarrantyCode(string warrantyCode);
         public Task UpdateWarranty(ws_warranty param);
 
         public Task CreateTicketService(CreateTicket request);
@@ -40,6 +40,7 @@ namespace WS_CRM.Feature.Activity.dao
         public Task UpdateTicketStatus(ws_ticket request);
         public  Task NonActiveTicketHeader(string ticket_no);
         public Task<APIResult<EmployeeRespon>> GetEmployeeByNIP(string endpoint);
+        public Task<int> GetLastTicketNumber();
     }
 }
 

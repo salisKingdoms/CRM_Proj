@@ -20,7 +20,7 @@
     }
     public class UpdateWarrantyRequest
     {
-        public long? id { get; set; }
+        public string warranty_code { get; set; }
         public string? company_code { get; set; }
         public string? invoice_no { get; set; }
         public DateTime? invoice_date { get; set; }

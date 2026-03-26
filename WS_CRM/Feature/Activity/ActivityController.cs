@@ -43,26 +43,20 @@ namespace WS_CRM.Feature.Activity
             var tokenVerification = _jwtFunction.TokenVerification(Request);
             if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
 
-            var result = new APIResultList<List<ws_warranty>>();
             var bodyJson = JsonConvert.SerializeObject(request);
             _logger.LogInformation(HelperLog.GetRequestLog("CreateWarranty", bodyJson));
-            try
+
+            var results = await _activityService.CreateWarranty(request);
+            if (results.is_ok)
             {
-                if (request != null)
-                {
-                    await _actDao.CreateWarranty(request);
-                    result.is_ok = true;
-                    result.message = "Success";
-                    _logger.LogInformation(HelperLog.GetResponseSuccessLog("CreateWarranty", JsonConvert.SerializeObject(result)));
-                }
+                _logger.LogInformation(HelperLog.GetResponseSuccessLog("CreateWarranty",JsonConvert.SerializeObject(results)));
             }
-            catch (Exception ex)
+            else
             {
-                result.is_ok = false;
-                result.message = "Data failed to submit, please contact administrator";
-                _logger.LogInformation(HelperLog.GetResponseErrorLog("CreateWarranty", JsonConvert.SerializeObject(result)));
+                _logger.LogWarning(HelperLog.GetResponseErrorLog("CreateWarranty",JsonConvert.SerializeObject(results)));
             }
-            return Ok(result);
+
+            return Ok(results);
         }
 
         [HttpGet]
@@ -73,75 +67,80 @@ namespace WS_CRM.Feature.Activity
             var tokenVerification = _jwtFunction.TokenVerification(Request);
             if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
 
-            var result = new APIResultList<List<WarrantyListRespon>>();
-            
-            try
+            var bodyJson = JsonConvert.SerializeObject(request);
+            _logger.LogInformation(HelperLog.GetRequestLog("GetWarrantyList", bodyJson));
+
+            var result = await _activityService.GetWarrantyList(request);
+            if (result.is_ok)
             {
-                var newData = await _activityService.GetListWaranty(request);
-                var totalData = await _actDao.RepoGetTotalAllWarranty(request);
-                result.is_ok = true;
-                result.message = "Success";
-                result.data = newData.ToList();
-                result.totalRow = totalData;
+                _logger.LogInformation(HelperLog.GetResponseSuccessLog("GetWarrantyList",JsonConvert.SerializeObject(result)));
             }
-            catch (Exception ex)
+            else
             {
-                result.is_ok = false;
-                result.message = "Data Not Found";
+                _logger.LogWarning(HelperLog.GetResponseErrorLog("GetWarrantyList",JsonConvert.SerializeObject(result)));
             }
+            /*  move to service // try
+            // {
+            //     var newData = await _activityService.GetListWaranty(request);
+            //     var totalData = await _actDao.RepoGetTotalAllWarranty(request);
+            //     result.is_ok = true;
+            //     result.message = "Success";
+            //     result.data = newData.ToList();
+            //     result.totalRow = totalData;
+            // }
+            // catch (Exception ex)
+            // {
+            //     result.is_ok = false;
+            //     result.message = "Data Not Found";
+            // }*/
 
             return Ok(result);
 
         }
 
         [HttpGet]
-        [Route("GetDetailWarrantybyId")]
-        public async Task<IActionResult> GetDetailWarrantybyId(long id)
+        [Route("GetDetailWarrantyByCode")]
+        public async Task<IActionResult> GetDetailWarrantyByCode(string warrantyCode)
         {
             var tokenVerification = _jwtFunction.TokenVerification(Request);
             if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
 
-            var result = new APIResultList<ws_warranty>();
-            try
+            var bodyJson = JsonConvert.SerializeObject(warrantyCode);
+            _logger.LogInformation(HelperLog.GetRequestLog("GetDetailWarrantyByCode", bodyJson));
+
+            var result = await _activityService.GetWarrantyDetail(warrantyCode);
+            if (result.is_ok)
             {
-                if (id > 0)
-                {
-                    var data = await _actDao.GetWarrantyById(id);
-                    result.data = data;
-                    result.is_ok = true;
-                    result.message = "Success";
-                }
+                _logger.LogInformation(HelperLog.GetResponseSuccessLog("GetDetailWarrantyByCode",JsonConvert.SerializeObject(result)));
             }
-            catch (Exception ex)
+            else
             {
-                result.is_ok = false;
-                result.message = "Data not found, please contact administrator";
+                _logger.LogWarning(HelperLog.GetResponseErrorLog("GetDetailWarrantyByCode",JsonConvert.SerializeObject(result)));
             }
+
             return Ok(result);
         }
 
         [HttpDelete]
-        [Route("DeleteWarrantybyId")]
-        public async Task<IActionResult> DeleteWarrantybyId(long id)
+        [Route("DeleteWarrantybyWarrantyCode")]
+        public async Task<IActionResult> DeleteWarrantybyWarrantyCode(string warrantyCode)
         {
             var tokenVerification = _jwtFunction.TokenVerification(Request);
             if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
 
-            var result = new APIResultList<ws_warranty>();
-            try
+            var bodyJson = JsonConvert.SerializeObject(warrantyCode);
+            _logger.LogInformation(HelperLog.GetRequestLog("DeleteWarranty", bodyJson));
+
+            var result = await _activityService.DeleteWarrantybyCode(warrantyCode);
+            if (result.is_ok)
             {
-                if (id > 0)
-                {
-                    await _actDao.DeleteWarrantyById(id);
-                    result.is_ok = true;
-                    result.message = "Success";
-                }
+                _logger.LogInformation(HelperLog.GetResponseSuccessLog("DeleteWarranty",JsonConvert.SerializeObject(result)));
             }
-            catch (Exception ex)
+            else
             {
-                result.is_ok = false;
-                result.message = "Data failed to delete, please contact administrator";
+                _logger.LogWarning(HelperLog.GetResponseErrorLog("DeleteWarranty",JsonConvert.SerializeObject(result)));
             }
+
             return Ok(result);
         }
 
@@ -152,26 +151,19 @@ namespace WS_CRM.Feature.Activity
             var tokenVerification = _jwtFunction.TokenVerification(Request);
             if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
 
-            var result = new APIResultList<ws_warranty>();
             var bodyJson = JsonConvert.SerializeObject(data);
             _logger.LogInformation(HelperLog.GetRequestLog("UpdateWarranty", bodyJson));
-            try
+
+            var result = await _activityService.UpdateWarranty(data);
+            if (result.is_ok)
             {
-                if (data != null && data.id > 0)
-                {
-                    var prod = HelperObj.convert<UpdateWarrantyRequest, ws_warranty>(data);
-                    await _actDao.UpdateWarranty(prod);
-                    result.is_ok = true;
-                    result.message = "Success";
-                    _logger.LogInformation(HelperLog.GetResponseSuccessLog("UpdateWarranty", JsonConvert.SerializeObject(result)));
-                }
+                _logger.LogInformation(HelperLog.GetResponseSuccessLog("UpdateWarranty",JsonConvert.SerializeObject(result)));
             }
-            catch (Exception ex)
+            else
             {
-                result.is_ok = false;
-                result.message = "Data failed to update, please contact administrator";
-                _logger.LogInformation(HelperLog.GetResponseErrorLog("UpdateWarranty", JsonConvert.SerializeObject(result)));
+                _logger.LogWarning(HelperLog.GetResponseErrorLog("UpdateWarranty",JsonConvert.SerializeObject(result)));
             }
+           
             return Ok(result);
         }
 

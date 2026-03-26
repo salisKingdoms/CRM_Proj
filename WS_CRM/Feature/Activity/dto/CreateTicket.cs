@@ -65,7 +65,7 @@
         public string? status { get; set; }
     }
 
-    public class WarrantyListRespon
+    public class WarrantyRespon
     { 
         public string WarrantyCode { get; set; }
         public string? CompanyCode { get; set; }
