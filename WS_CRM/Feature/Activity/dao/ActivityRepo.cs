@@ -568,7 +568,7 @@ namespace WS_CRM.Feature.Activity.dao
             var sql = " SELECT COUNT(*) FROM ws_ticket WHERE CAST(created_on AS DATE) = CAST(NOW() AS DATE)";
             var param = new Dictionary<string, object>{};
 
-            return await connection.QuerySingleOrDefaultAsync<int>(sql, param);
+            return await connection.ExecuteScalarAsync<int>(sql, param);
         }
     }
 }

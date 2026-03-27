@@ -174,68 +174,19 @@ namespace WS_CRM.Feature.Activity
             var tokenVerification = _jwtFunction.TokenVerification(Request);
             if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
 
-            var result = new APIResultList<List<ws_ticket>>();
-            try
+             var bodyJson = JsonConvert.SerializeObject(request);
+            _logger.LogInformation(HelperLog.GetRequestLog("Ticket/CreateTicket", bodyJson));
+
+            var result = await _activityService.CreateTicketAsync(request);
+            if (result.is_ok)
             {
-                if (request != null)
-                {
-                    string ticketNo = "T0009";//must make logic to generate number automaticly
-                                              //equest.ticket_header.ticket_no = ticketNo;
-                                              //var header = await _actDao.GetTicketHeaderByTicketNo(ticketNo);
-                                              //if (!string.IsNullOrEmpty(header.ticket_no))
-                                              //    await _actDao.UpdateTicketHeader(request.ticket_header);
-                    await _actDao.CreateTicketService(request.ticket_header);
-
-
-                    if (request.ticket_unit != null)
-                    {
-                        var unitOld = await _actDao.GetAllTicketUnit(request.ticket_header.ticket_no);
-                        foreach (var unit in request.ticket_unit)
-                        {
-
-                            unit.ticket_no = ticketNo;
-                            //var unReq = HelperObj.convert<ws_ticket_unit, CreateTicketUnit>(unit);
-                            //var unitSame = unitOld.Where(x => x.ticket_no == unit.ticket_no).FirstOrDefault();
-                            //if (unitSame != null)
-                            //    await _actDao.UpdateTicketUnit(unReq);
-                            //await _actDao.CreateTicketUnit(unit);
-                             await _actDao.CreateTicketUnit(unit);
-                            // 👉 enqueue AI classification
-                            if (!string.IsNullOrEmpty(unit.complaint_text))
-                            {
-                                await _queue.EnqueueAsync(new AIJob
-                                {
-                                    WarrantyNo = unit.warranty_no,
-                                    UnitId = unit.unit_line_no,
-                                    ComplaintText = unit.complaint_text
-                                });
-                            }
-                        }
-                    }
-
-                    if (request.ticket_sparepart != null)
-                    {
-                        var spOld = await _actDao.GetAllTicketSparepart(request.ticket_header.ticket_no);
-                        foreach (var sparepart in request.ticket_sparepart)
-                        {
-                            sparepart.ticket_no = ticketNo;
-                            //ar spReq = HelperObj.convert<ws_ticket_sparepart, CreateTicketSparepart>(sparepart);
-                            //r spSame = spOld.Where(x => x.ticket_no == sparepart.ticket_no).FirstOrDefault();
-                            //if (spOld != null)
-                            //    await _actDao.UpdateTicketSparepart(spReq);
-                            await _actDao.CreateTicketSparepart(sparepart);
-                        }
-                    }
-
-                    result.is_ok = true;
-                    result.message = "Success";
-                }
+                _logger.LogInformation(HelperLog.GetResponseSuccessLog("Ticket/CreateTicket",JsonConvert.SerializeObject(result)));
             }
-            catch (Exception ex)
+            else
             {
-                result.is_ok = false;
-                result.message = "Data failed to submit, please contact administrator";
+                _logger.LogWarning(HelperLog.GetResponseErrorLog("Ticket/CreateTicket",JsonConvert.SerializeObject(result)));
             }
+           
             return Ok(result);
         }
 
@@ -246,82 +197,19 @@ namespace WS_CRM.Feature.Activity
             var tokenVerification = _jwtFunction.TokenVerification(Request);
             if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
 
-            var result = new APIResultList<List<TicketDetailRespon>>();
-            try
+            var bodyJson = JsonConvert.SerializeObject(ticket_no);
+            _logger.LogInformation(HelperLog.GetRequestLog("Ticket/GetTicketDetail", bodyJson));
+
+            var result = await _activityService.GetTicketDetail(ticket_no);
+            if (result.is_ok)
             {
-                if (!string.IsNullOrEmpty(ticket_no))
-                {
-                    var header = await _actDao.GetTicketHeaderByTicketNo(ticket_no);
-                    var unit = await _actDao.GetAllTicketUnit(ticket_no);
-                    var sparepart = await _actDao.GetAllTicketSparepart(ticket_no);
-                    //get customer from WS_CRM_CUSTOMER_SERVICE with localhost path
-                    var endpointCustomer = "https://localhost:44314/Customer/" + AppConstant.CUSTOMER_GET_DETAIL + "?id=" + header.customer_id;
-                    var customers = await _actDao.GetCustomerById(endpointCustomer);
-
-                    //get employee from WS_CRM_CEmployee with localhost path
-                    var endpointEmployee = "https://localhost:44351/Employee/" + AppConstant.EMPLOYEE_GET_DETAIL + "?nip=" + header.assign_to;
-                    var employees = await _actDao.GetEmployeeByNIP(endpointEmployee);
-                    
-                    List<CreateTicketUnit> unitList = new List<CreateTicketUnit>();
-                    foreach (var item_u in unit)
-                    {
-                        unitList.Add(new CreateTicketUnit
-                        {
-                            active = item_u.active,
-                            product_name = item_u.product_name,
-                            sku_code = item_u.sku_code,
-                            qty = item_u.qty,
-                            unit_line_no = item_u.unit_line_no,
-                            created_by = item_u.created_by,
-                            created_on = item_u.created_on
-                        });
-
-                    }
-
-                    List<CreateTicketSparepart> spList = new List<CreateTicketSparepart>();
-                    foreach (var sp in sparepart)
-                    {
-                        spList.Add(new CreateTicketSparepart
-                        {
-                            //active = sp.active,
-                            sparepart_code = sp.sparepart_code,
-                            sparepart_name = sp.sparepart_name,
-                            unit_line_no = sp.unit_line_no,
-                            uom = sp.uom,
-                            qty = sp.qty,
-                            product_name = sp.product_name,
-                            created_by = sp.created_by,
-                            created_on = sp.created_on
-                        });
-                    }
-                    List<TicketDetailRespon> datas = new List<TicketDetailRespon>();
-                    TicketDetailRespon detail = new TicketDetailRespon();
-
-                    //ticket_sparepart = convertSparepart,
-                    // ticket_unit = convertUnit,
-                    detail.ticket_no = header.ticket_no;
-                    detail.assign_to = header.assign_to;
-                    detail.assign_name = employees.data.name;
-                    detail.customer_id = header.customer_id;
-                    detail.payment_method = header.payment_method;
-                    detail.status = header.status;
-                    detail.service_center = header.service_center;
-                    detail.ticket_sparepart = spList;
-                    detail.ticket_unit = unitList;
-                    datas.Add(detail);
-
-
-
-                    result.data = datas;
-                    result.is_ok = true;
-                    result.message = "Success";
-                }
+                _logger.LogInformation(HelperLog.GetResponseSuccessLog("Ticket/GetTicketDetail",JsonConvert.SerializeObject(result)));
             }
-            catch (Exception ex)
+            else
             {
-                result.is_ok = false;
-                result.message = "Data failed to submit, please contact administrator";
+                _logger.LogWarning(HelperLog.GetResponseErrorLog("Ticket/GetTicketDetail",JsonConvert.SerializeObject(result)));
             }
+
             return Ok(result);
         }
 
@@ -332,19 +220,17 @@ namespace WS_CRM.Feature.Activity
             var tokenVerification = _jwtFunction.TokenVerification(Request);
             if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
 
-            var result = new APIResultList<List<ws_ticket>>();
-            try
+            var bodyJson = JsonConvert.SerializeObject(filter);
+            _logger.LogInformation(HelperLog.GetRequestLog("GetTicketList", bodyJson));
+            
+            var result = await _activityService.GetTicketList(filter);
+            if (result.is_ok)
             {
-                var data = await _actDao.GetAllTicketHeader(filter);
-                var totalData = await _actDao.RepoGetTotalAllTicket(filter);
-                result.is_ok = true;
-                result.message = "Success";
-                result.data = data.ToList();
-                result.totalRow = totalData;
+                _logger.LogInformation(HelperLog.GetResponseSuccessLog("GetTicketList",JsonConvert.SerializeObject(result)));
             }
-            catch (Exception ex)
+            else
             {
-
+                _logger.LogWarning(HelperLog.GetResponseErrorLog("GetTicketList",JsonConvert.SerializeObject(result)));
             }
 
             return Ok(result);
@@ -358,24 +244,19 @@ namespace WS_CRM.Feature.Activity
             var tokenVerification = _jwtFunction.TokenVerification(Request);
             if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
 
-            var result = new APIResultList<ws_ticket>();
-            try
+            var bodyJson = JsonConvert.SerializeObject(data);
+            _logger.LogInformation(HelperLog.GetRequestLog("UpdateStatusTicket", bodyJson));
+
+            var result = await _activityService.UpdateStatusTicket(data);
+            if (result.is_ok)
             {
-                if (!string.IsNullOrEmpty(data.ticket_no))
-                {
-                    var ticket = HelperObj.convert<UpdateTicketStatusRequest, ws_ticket>(data);
-                    ticket.modified_by = "sys";
-                    ticket.modified_on = DateTime.UtcNow;
-                    await _actDao.UpdateTicketStatus(ticket);
-                    result.is_ok = true;
-                    result.message = "Success";
-                }
+                _logger.LogInformation(HelperLog.GetResponseSuccessLog("UpdateStatusTicket",JsonConvert.SerializeObject(result)));
             }
-            catch (Exception ex)
+            else
             {
-                result.is_ok = false;
-                result.message = "Data failed to update, please contact administrator";
+                _logger.LogWarning(HelperLog.GetResponseErrorLog("UpdateStatusTicket",JsonConvert.SerializeObject(result)));
             }
+
             return Ok(result);
         }
 
@@ -386,19 +267,18 @@ namespace WS_CRM.Feature.Activity
             var tokenVerification = _jwtFunction.TokenVerification(Request);
             if (!tokenVerification.is_ok) return Unauthorized(tokenVerification);
 
-            var result = new APIResultList<ws_ticket>();
-            try
+            var bodyJson = JsonConvert.SerializeObject(ticket_no);
+            _logger.LogInformation(HelperLog.GetRequestLog("DeleteTicketHeader", bodyJson));
+            var result = await _activityService.DeleteTicketHeader(ticket_no);
+            if (result.is_ok)
             {
-                await _actDao.NonActiveTicketHeader(ticket_no);
-                result.is_ok = true;
-                result.message = "Success";
-
+                _logger.LogInformation(HelperLog.GetResponseSuccessLog("DeleteTicketHeader",JsonConvert.SerializeObject(result)));
             }
-            catch (Exception ex)
+            else
             {
-                result.is_ok = false;
-                result.message = "Data failed to delete, please contact administrator";
+                _logger.LogWarning(HelperLog.GetResponseErrorLog("DeleteTicketHeader",JsonConvert.SerializeObject(result)));
             }
+            
             return Ok(result);
         }
     }

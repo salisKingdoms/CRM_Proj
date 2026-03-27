@@ -20,6 +20,7 @@ using WS_CRM.Feature.Activity.Model;
 using WS_CRM.Feature.Activity.dto;
 using AutoMapper;
 using WS_CRM.Config;
+using WS_CRM.BackgroundJob;
 
 namespace WS_CRM.Feature.Activity.dao {
     
@@ -27,12 +28,16 @@ namespace WS_CRM.Feature.Activity.dao {
     {
          IActivityRepo _actDao;
          private readonly IMapper _mapper;
-        
-        public ActivityService(IActivityRepo actDao,IMapper mapper)
+         private readonly DataContext _context;
+         private readonly IBackgroundTaskQueue _queue;
+        private readonly AppConfig _appConfig;
+        public ActivityService(IActivityRepo actDao,IMapper mapper, DataContext context,IBackgroundTaskQueue queue, AppConfig config)
         {
             _actDao = actDao;
             _mapper = mapper;
-            
+            _context = context;
+            _queue = queue;
+            _appConfig = config;
         }
 
         public async Task<List<WarrantyRespon>> GetListWaranty(GlobalFilter request)
@@ -235,69 +240,238 @@ namespace WS_CRM.Feature.Activity.dao {
             return result;
         }
 
-        /*public async Task<APIResult> CreateTicketAsync(CreateTiketBase request)
+        public async Task<APIResult> CreateTicketAsync(CreateTiketBase request)
         {
-            using var connection = _db.CreateConnection();
-            await connection.OpenAsync();
-
-            using var transaction = connection.BeginTransaction();
+            await using var _conn = await _context.CreateOpenConnectionAsync();
+            await using var trans = await _conn.BeginTransactionAsync();
 
             try
             {
-                string ticketNo = await GenerateTicketNoAsync(connection, transaction);
+                string ticketNoUpdate = await ticketNumbering();
+                request.ticket_header.ticket_no = ticketNoUpdate;
+                await _actDao.CreateTicketService(request.ticket_header);
 
-                request.ticket_header.ticket_no = ticketNo;
-
-                await _actDao.CreateTicketService(
-                        request.ticket_header,
-                        connection,
-                        transaction);
-
-                if (request.ticket_unit != null)
+                //unit detail
+                foreach(var unit in request.ticket_unit ?? [])
                 {
-                    foreach (var unit in request.ticket_unit)
-                    {
-                        unit.ticket_no = ticketNo;
+                    unit.ticket_no = ticketNoUpdate;
+                    await _actDao.CreateTicketUnit(unit);
 
-                        await _actDao.CreateTicketUnit(
-                                unit,
-                                connection,
-                                transaction);
-                    }
+                     // 👉 enqueue AI classification
+                            if (!string.IsNullOrEmpty(unit.complaint_text))
+                            {
+                                await _queue.EnqueueAsync(new AIJob
+                                {
+                                    WarrantyNo = unit.warranty_no,
+                                    UnitId = unit.unit_line_no,
+                                    ComplaintText = unit.complaint_text
+                                });
+                            }
                 }
 
-                if (request.ticket_sparepart != null)
+                //sparepart detail
+                foreach(var sparepart in request.ticket_sparepart ?? [])
                 {
-                    foreach (var sparepart in request.ticket_sparepart)
-                    {
-                        sparepart.ticket_no = ticketNo;
-
-                        await _actDao.CreateTicketSparepart(
-                                sparepart,
-                                connection,
-                                transaction);
-                    }
+                    sparepart.ticket_no = ticketNoUpdate;
+                    await _actDao.CreateTicketSparepart(sparepart);
                 }
-
-                await transaction.CommitAsync();
-
-                return new APIResult
-                {
-                    is_ok = true,
-                    message = "Success"
-                };
+                
+                //commit trans
+                await trans.CommitAsync();
+                return new APIResult{ is_ok = true, message = "Success"};
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-
+                //rollback trans
+                await trans.RollbackAsync();
                 return new APIResult
                 {
                     is_ok = false,
-                    message = "Failed to submit data"
+                    message = "Failed to submit data : " + ex.Message
                 };
             }
-        }*/
+        }
+
+        private async Task<string> ticketNumbering ()
+        {
+            string number = string.Empty;
+
+            var lastCount = await _actDao.GetLastTicketNumber();
+            var sequence = lastCount +1;
+            var today = DateTime.UtcNow;
+            number = $"TKT-{today:yyyy-MM-dd}-{sequence:D5}";
+
+            return number;
+        }
+
+        public async Task<APIResultList<List<TicketDetailRespon>>> GetTicketDetail(string ticket_no)
+        {
+            var result = new APIResultList<List<TicketDetailRespon>>();
+            if (string.IsNullOrWhiteSpace(ticket_no))
+            {
+                result.is_ok = false;
+                result.message = "Ticket number is required";
+                return result;
+            }
+
+            try
+            {
+
+                    var header = await _actDao.GetTicketHeaderByTicketNo(ticket_no);
+                    if (header == null)
+                    {
+                        result.is_ok = false;
+                        result.message = "Ticket number not found";
+                        return result;
+                    }
+
+                    var unit = await _actDao.GetAllTicketUnit(ticket_no);
+                    var sparepart = await _actDao.GetAllTicketSparepart(ticket_no);
+                    
+                    var endpointCustomer = $"{_appConfig.CustomerService_urlAPI}{AppConstant.CUSTOMER_GET_DETAIL}?id={header.customer_id}";
+                    var endpointEmployee = $"{_appConfig.EmployeeService_urlAPI}{AppConstant.EMPLOYEE_GET_DETAIL}?nip={header.assign_to}";
+                    //get customer from WS_CRM_CUSTOMER_SERVICE with localhost path
+                    var customers = await _actDao.GetCustomerById(endpointCustomer);
+                    //get employee from WS_CRM_CEmployee with localhost path
+                    var employees = await _actDao.GetEmployeeByNIP(endpointEmployee);
+
+                    /* IF IN THE FUTURE WILL CONCERN TO ROBUST TIMING , MUST CHANGE SEQUENCIAL TO WHENALL METHODE
+                    but await in every task need to deleted , add this code :(reminder for seeing microsoft documentation before implement)
+                    await Task.WhenAll(unit, sparepart, customers, employees);
+                    */
+
+                    //mapping unit using LINQ
+                     var unitList = unit.Select(u => new CreateTicketUnit
+                     {
+                        active = u.active,
+                        product_name = u.product_name,
+                        sku_code = u.sku_code,
+                        qty = u.qty,
+                        unit_line_no = u.unit_line_no,
+                        created_by = u.created_by,
+                        created_on = u.created_on
+                     }).ToList();
+                    
+                     var spList = sparepart.Select(sp=> new CreateTicketSparepart
+                     {
+                            sparepart_code = sp.sparepart_code,
+                            sparepart_name = sp.sparepart_name,
+                            unit_line_no = sp.unit_line_no,
+                            uom = sp.uom,
+                            qty = sp.qty,
+                            product_name = sp.product_name,
+                            created_by = sp.created_by,
+                            created_on = sp.created_on
+                     }).ToList();
+
+                    
+                    var detail = new TicketDetailRespon
+                    {
+                        ticket_no = header.ticket_no,
+                        assign_to = header.assign_to,
+                        assign_name = employees?.data?.name,
+                        customer_id = header.customer_id,
+                        payment_method = header.payment_method,
+                        status = header.status,
+                        service_center = header.service_center,
+                        ticket_unit = unitList,
+                        ticket_sparepart = spList
+                    };
+
+                    result.data = new List<TicketDetailRespon> { detail };
+                    result.is_ok = true;
+                    result.message = "Success";
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to submit, please contact administrator";
+            }
+            return result;
+        }
     
+        public async Task<APIResultList<List<ws_ticket>>> GetTicketList(GlobalFilter filter)
+        {
+             if (filter == null)
+                    throw new Exception("Request null");
+            var result = new APIResultList<List<ws_ticket>>();
+            try
+            {
+                var data = await _actDao.GetAllTicketHeader(filter);
+                var totalData = await _actDao.RepoGetTotalAllTicket(filter);
+                result.is_ok = true;
+                result.message = "Success";
+                result.data = data.ToList();
+                result.totalRow = totalData;
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data Not Found" + ex.Message;
+            }
+
+            return result;
+
+        }
+
+        public async Task<APIResultList<ws_ticket>> UpdateStatusTicket(UpdateTicketStatusRequest data)
+        {
+            var result = new APIResultList<ws_ticket>();
+            try
+            {
+                if(string.IsNullOrWhiteSpace(data.ticket_no))
+                {
+                    result.is_ok = false;
+                    result.message = "Ticket number is required";
+                    return result;
+                }
+                
+                    var ticket = HelperObj.convert<UpdateTicketStatusRequest, ws_ticket>(data);
+                    ticket.modified_by = "sys";
+                    ticket.modified_on = DateTime.UtcNow;
+                    await _actDao.UpdateTicketStatus(ticket);
+                    result.is_ok = true;
+                    result.message = "Success";
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to update, please contact administrator";
+            }
+            return result;
+        }
+
+        public async Task<APIResultList<ws_ticket>> DeleteTicketHeader(string ticket_no)
+        {
+            var result = new APIResultList<ws_ticket>();
+            try
+            {
+                if(string.IsNullOrWhiteSpace(ticket_no))
+                {
+                    result.is_ok = false;
+                    result.message = "Ticket number is required";
+                    return result;
+                }
+
+                var ticketHeader = await _actDao.GetTicketHeaderByTicketNo(ticket_no);
+                if(ticketHeader == null)
+                {
+                    result.is_ok = false;
+                    result.message = "Ticket number is required";
+                    return result;
+                }
+
+                await _actDao.NonActiveTicketHeader(ticket_no);
+                result.is_ok = true;
+                result.message = "Success";
+
+            }
+            catch (Exception ex)
+            {
+                result.is_ok = false;
+                result.message = "Data failed to delete, please contact administrator";
+            }
+            return result;
+        }
     }
 }
