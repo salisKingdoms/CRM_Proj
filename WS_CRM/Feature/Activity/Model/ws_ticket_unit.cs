@@ -13,5 +13,8 @@
         public DateTime? created_on { get; set; }
         public string modified_by { get; set; }
         public DateTime? modified_on { get; set; }
+        public string ai_category {get; set;}
+        public string ai_severity { get; set;}
+        public string complaint_text { get; set;}
     }
 }

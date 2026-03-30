@@ -17,16 +17,25 @@
             {
                 var workItem = await _queue.DequeueAsync(stoppingToken);
 
-                try
+                    int retry = 0;
+                    bool success = false;
+                
+                while (retry < 3 && !success)
                 {
-                    await _aiService.AnalyzeAndSaveAsync(
-                        workItem.UnitId,
-                        workItem.WarrantyNo,
-                        workItem.ComplaintText);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"AI worker error: {ex.Message}");
+                    try
+                    {
+                        await _aiService.AnalyzeAndSaveAsync(
+                            workItem.UnitId,
+                            workItem.WarrantyNo,
+                            workItem.ComplaintText);
+
+                        success = true;
+                    }
+                    catch 
+                    { //retry mechanisme if AI API unstable
+                        retry++;
+                        await Task.Delay(2000);
+                    }
                 }
             }
         }

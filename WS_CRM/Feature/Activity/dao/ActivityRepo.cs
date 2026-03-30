@@ -1,27 +1,12 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using WS_CRM.Helper;
 using WS_CRM.Feature.Activity.Model;
 using WS_CRM.Feature.Activity.dto;
 using AutoMapper;
 using WS_CRM.Config;
+using System.Data;
 
-namespace WS_CRM.Feature.Activity.dao
+namespace WS_CRM.Feature.Activity.dao 
 {
     public class ActivityRepo : IActivityRepo
     {
@@ -35,8 +20,8 @@ namespace WS_CRM.Feature.Activity.dao
 
         public async Task<List<ws_warranty>> GetAllWarranty(GlobalFilter filter)
         {
-            var data = RepoGetAllWarranty(filter).Result.ToList();
-            return data;
+            var data = await RepoGetAllWarranty(filter);
+            return data.ToList();
         }
         public async Task CreateWarranty(CreateActivationWarranty request)
         {
@@ -47,27 +32,27 @@ namespace WS_CRM.Feature.Activity.dao
                         ")" +
                         "VALUES (@warranty_no, @company_code, @invoice_no, @invoice_date, @article_code, @article_name, @serial_no, @start_date,@end_date,@activate_by,@activate_on,@active,@created_by,@created_on,@modified_by,@modified_on,@warranty_code" +
                         ")";
-                var param = new Dictionary<string, object>
-            {
-                { "warranty_no", request.warranty_no ?? "" },
-                { "company_code", request.company_code ?? "" },
-                { "invoice_no", request.invoice_no },
-                { "invoice_date", request.invoice_date ?? null },
-                { "article_code", request.article_code ?? "" },
-                { "article_name", request.article_name ?? "" },
-                { "serial_no", request.serial_no ?? "" },
-                { "start_date", request.start_date ?? null },
-                { "end_date", request.end_date ?? null },
-                { "activate_by", request.activate_by ?? "" },
-                { "activate_on", request.activate_on ?? null },
-                { "active", request.active},
-                { "created_by", request.created_by ??""},
-                { "created_on", request.created_on ?? null },
-                { "modified_by",null },
-                { "modified_on",null},
-                { "warranty_code", request.warranty_code }
+                var param = new 
+               {
+                 warranty_no= request.warranty_no ?? "" ,
+                 company_code =request.company_code ?? "",
+                 invoice_no =  request.invoice_no,
+                 invoice_date =  request.invoice_date ?? null,
+                 article_code = request.article_code ?? "",
+                 article_name =  request.article_name ?? "",
+                 serial_no =  request.serial_no ?? "",
+                 start_date =  request.start_date ?? null,
+                 end_date = request.end_date ?? null,
+                 activate_by =  request.activate_by ?? "",
+                 activate_on = request.activate_on ?? null,
+                 active = request.active,
+                 created_by = request.created_by ??"",
+                 created_on =  request.created_on ?? null,
+                 modified_by = (string?)null ,
+                 modified_on = (DateTime?)null,
+                 warranty_code =  request.warranty_code 
 
-            };
+                };
                 await connection.ExecuteAsync(sql, param);
 
         }
@@ -94,13 +79,13 @@ namespace WS_CRM.Feature.Activity.dao
                 
             }
 
-            string sqlALL = sql + "  limit @limit offset @offset";
-            var param = new Dictionary<string, object>
+            sql += " LIMIT @limit OFFSET @offset";
+            var param = new 
             {
-                { "limit",filter.limit ?? 10},
-                { "offset",filter.offset?? 0}
+                limit = filter.limit ?? 10 ,
+                offset = filter.offset?? 0
             };
-            return await connection.QueryAsync<ws_warranty>(sqlALL,param);
+            return await connection.QueryAsync<ws_warranty>(sql,param);
         }
         public async Task<int> RepoGetTotalAllWarranty(GlobalFilter filter)
         {
@@ -113,9 +98,9 @@ namespace WS_CRM.Feature.Activity.dao
         {
             using var connection = _context.CreateConnection();
             var sql = " select * from ws_warranty where warranty_code=@no";
-            var param = new Dictionary<string, object>
+            var param = new 
             {
-                { "no", warrantyCode  },
+                no =  warrantyCode,
 
             };
             return await connection.QuerySingleOrDefaultAsync<ws_warranty>(sql, param);
@@ -129,9 +114,9 @@ namespace WS_CRM.Feature.Activity.dao
                 modified_by = 'system',
                 modified_on = NOW()
             WHERE warranty_code = @code"; 
-            var param = new Dictionary<string, object>
+            var param = new 
             {
-                { "code", warrantyCode  },
+                code =  warrantyCode 
 
             };
             await connection.ExecuteAsync(sql, param);
@@ -156,38 +141,32 @@ namespace WS_CRM.Feature.Activity.dao
             await connection.ExecuteAsync(sql, param);
         }
        
-        public async Task CreateTicketService(CreateTicket request)
+        public async Task CreateTicketService(CreateTicket request, IDbConnection conn,IDbTransaction trans)
         {
-            using var connection = _context.CreateConnection();
-            try
-            {
+           
                 var sql = " INSERT INTO ws_ticket" +
-                        "(ticket_no, status, customer_id, service_center, assign_to, payment_method,created_by,created_on,modified_by,modified_on " +
+                        "(ticket_no, status, customer_id, service_center, assign_to, payment_method,created_by,created_on,modified_by,modified_on,active " +
                         ")" +
-                        "VALUES (@ticket_no, @status, @customer_id, @service_center, @assign_to, @payment_method,@created_by,@created_on,@modified_by,@modified_on" +
+                        "VALUES (@ticket_no, @status, @customer_id, @service_center, @assign_to, @payment_method,@created_by,@created_on,@modified_by,@modified_on,@active " +
                         ")";
-                var param = new Dictionary<string, object>
-            {
-                { "ticket_no", request.ticket_no ?? "" },
-                { "status", request.status ?? "" },
-                { "customer_id", request.customer_id },
-                { "service_center", request.service_center ?? "" },
-                { "assign_to", request.assign_to ?? "" },
-                { "payment_method", request.payment_method ?? "" },
-                { "created_by", request.created_by ??""},
-                { "created_on", request.created_on ?? null },
-                { "modified_by",null },
-                { "modified_on",null}
+                var param = new 
+                {
+                    ticket_no = request.ticket_no ?? "" ,
+                    status =  request.status ?? "" ,
+                    customer_id = request.customer_id ,
+                    service_center =  request.service_center ?? "",
+                    assign_to =  request.assign_to ?? "",
+                    payment_method =  request.payment_method ?? "",
+                    created_by =  request.created_by ??"" ,
+                    created_on =  request.created_on ?? null,
+                    modified_by = (string?)null,
+                    modified_on = (DateTime?)null,
+                    active =(Boolean)true
 
-            };
-                await connection.ExecuteAsync(sql, param);
-            }
-            catch (Exception ex)
-            {
-                string s = ex.Message;
-            }
-
+                };
+                await conn.ExecuteAsync(sql, param, trans);
         }
+
 
         private string QueryListTicket(bool isList, string filters)
         {
@@ -198,25 +177,27 @@ namespace WS_CRM.Feature.Activity.dao
         private async Task<IEnumerable<ws_ticket>> RepoGetAllTicket(GlobalFilter filter)
         {
             using var connection = _context.CreateConnection();
-            ws_ticket_database_filter dbModel = new ws_ticket_database_filter();
-            (string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
-            var sql = QueryListTicket(true, whereParam.Item1);
-            if(!whereParam.Item1.Contains(" "))
+            var dbModel = new ws_ticket_database_filter();
+            var (whereClause, whereParam) = CustomUtility.GetWhere(dbModel, false, filter);
+            //(string, Dictionary<string, object>) whereParam = CustomUtility.GetWhere(dbModel, false, filter);
+            //var sql = QueryListTicket(true, whereParam.Item1);
+            var sql = QueryListTicket(true, whereClause);
+            if (string.IsNullOrWhiteSpace(whereClause))
             {
-                sql += " and active=true";
+                sql += " WHERE active = true";
             }
             else
             {
-                sql += " where active=true";
+                sql += " AND active = true";
             }
-            string sqlALL = sql + " limit @limit offset @offset";
-            var param = new Dictionary<string, object>
-            {
-                { "limit",filter.limit ?? 0},
-                { "offset",filter.offset??0}
-            };
 
-            return await connection.QueryAsync<ws_ticket>(sqlALL, param.Concat(whereParam.Item2).ToDictionary(x => x.Key, x => x.Value));
+            sql += " LIMIT @limit OFFSET @offset";
+
+            var param = new DynamicParameters(whereParam);
+                param.Add("limit", filter.limit ?? 10);
+                param.Add("offset", filter.offset ?? 0);
+
+            return await connection.QueryAsync<ws_ticket>(sql, param);
 
         }
         public async Task<int> RepoGetTotalAllTicket(GlobalFilter filter)
@@ -233,17 +214,14 @@ namespace WS_CRM.Feature.Activity.dao
             {
                 sql += " where active=true";
             }
-            var param = new Dictionary<string, object>
-            {
-
-            };
-            return await connection.QuerySingleOrDefaultAsync<int>(sql, param.Concat(whereParam.Item2).ToDictionary(x => x.Key, x => x.Value));
+            var param = new {};
+            return await connection.QuerySingleOrDefaultAsync<int>(sql, param);
         }
 
         public async Task<List<ws_ticket>> GetAllTicketHeader(GlobalFilter filter)
         {
-            var data = RepoGetAllTicket(filter).Result.ToList();
-            return data;
+            var data = await RepoGetAllTicket(filter);;
+            return data.ToList();
         }
 
         public async Task<ws_ticket> GetTicketHeaderByTicketNo(string ticket_no)
@@ -270,38 +248,30 @@ namespace WS_CRM.Feature.Activity.dao
             WHERE id = @id";
             await connection.ExecuteAsync(sql, param);
         }
-        public async Task CreateTicketUnit(CreateTicketUnit request)
+        public async Task CreateTicketUnit(CreateTicketUnit request , IDbConnection conn,IDbTransaction trans)
         {
-            using var connection = _context.CreateConnection();
-            try
-            {
                 var sql = " INSERT INTO ws_ticket_unit" +
                         "(ticket_no, sku_code, product_name, qty, unit_line_no, warranty_no,active,created_by,created_on,modified_by,modified_on " +
                         ")" +
                         "VALUES (@ticket_no, @sku_code, @product_name, @qty, @unit_line_no, @warranty_no,@active,@created_by,@created_on,@modified_by,@modified_on " +
                         ")";
-                var param = new Dictionary<string, object>
-            {
-                { "ticket_no", request.ticket_no ?? "" },
-                { "sku_code", request.sku_code ?? "" },
-                { "product_name", request.product_name ?? "" },
-                { "qty", request.qty  },
-                { "unit_line_no", request.unit_line_no  },
-                { "warranty_no", request.warranty_no ?? "" },
-                { "active", request.active  },
-                { "created_by", request.created_by ??""},
-                { "created_on", request.created_on ?? null },
-                { "modified_by",null },
-                { "modified_on",null}
+                var param = new 
+                {
+                    ticket_no =  request.ticket_no ?? "" ,
+                    sku_code =  request.sku_code ?? "" ,
+                    product_name =  request.product_name ?? "",
+                    qty =  request.qty  ,
+                    unit_line_no =  request.unit_line_no ,
+                    warranty_no = request.warranty_no ?? "" ,
+                    active = request.active ,
+                    created_by = request.created_by ??"",
+                    created_on = request.created_on ?? null ,
+                    modified_by = (string?)null,
+                    modified_on = (DateTime?)null
 
-            };
-                await connection.ExecuteAsync(sql, param);
-            }
-            catch (Exception ex)
-            {
-                string s = ex.Message;
-            }
-
+                };
+                await conn.ExecuteAsync(sql, param, trans);
+            
         }
 
         public async Task<int> CreateTicketUnitRetID(CreateTicketUnit request)
@@ -318,6 +288,7 @@ namespace WS_CRM.Feature.Activity.dao
                          @warranty_no, @active, @created_by, @created_on,
                          @modified_by, @modified_on)
                          ;
+                         SELECT LAST_INSERT_ID();
                         ";
 
             var param = new
@@ -343,26 +314,27 @@ namespace WS_CRM.Feature.Activity.dao
         private string QueryListTicketUnit(bool isList)
         {
 
-            var query = (isList ? "SELECT * FROM ws_ticket_unit " : "SELECT COUNT (*) AS JUMLAH FROM ws_ticket_unit ");
+            var query = (isList ? "SELECT a.*,b.complaint_text FROM ws_ticket_unit a " : "SELECT COUNT (*) AS JUMLAH FROM ws_ticket_unit a ");
+                query += " JOIN ws_ticket_unit_ai b on a.warranty_no = b.warranty_no ";
             return query;
         }
         private async Task<IEnumerable<ws_ticket_unit>> RepoGetAllTicketUnit(string ticket_no)
         {
             using var connection = _context.CreateConnection();
             var sql = QueryListTicketUnit(true);
-            string queryFilter = " where ticket_no=@ticket_no ";
+            string queryFilter = " where a.ticket_no=@ticket_no ";
             string sqlALL = sql + queryFilter ;
-            var param = new Dictionary<string, object>
+            var param = new 
             {
-                { "ticket_no", ticket_no?? "" }
+                ticket_no = ticket_no?? "" 
             };
             return await connection.QueryAsync<ws_ticket_unit>(sqlALL, param);
         }
 
         public async Task<List<ws_ticket_unit>> GetAllTicketUnit(string ticket_no)
         {
-            var data = RepoGetAllTicketUnit(ticket_no).Result.ToList();
-            return data;
+            var data = await RepoGetAllTicketUnit(ticket_no);
+            return data.ToList();
         }
         public async Task<int> RepoGetTotalAllTicketUnit(string ticket_no)
         {
@@ -370,9 +342,9 @@ namespace WS_CRM.Feature.Activity.dao
             var sql = QueryListTicketUnit(false);
             string queryFilter = " where ticket_no=@ticket_no ";
             string sqlALL = sql + queryFilter;
-            var param = new Dictionary<string, object>
+            var param = new 
             {
-                { "ticket_no", ticket_no?? "" }
+                ticket_no =  ticket_no?? "" 
             };
             return await connection.QuerySingleOrDefaultAsync<int>(sqlALL, param);
         }
@@ -385,10 +357,10 @@ namespace WS_CRM.Feature.Activity.dao
                 modified_by = @modified_by,
                 modified_on = @modified_on
             WHERE ticket_no = @ticket_no and unit_line_no=@unit_line";
-            var param = new Dictionary<string, object>
+            var param = new 
             {
-                { "ticket_no", ticket_no ?? ""  },
-                { "unit_line",unit_line ?? null }
+                ticket_no =  ticket_no ?? "" ,
+                unit_line = unit_line ?? null 
 
             };
             await connection.ExecuteAsync(sql, param);
@@ -408,40 +380,31 @@ namespace WS_CRM.Feature.Activity.dao
             await connection.ExecuteAsync(sql, param);
         } 
 
-        public async Task CreateTicketSparepart(CreateTicketSparepart request)
+        public async Task CreateTicketSparepart(CreateTicketSparepart request, IDbConnection conn,IDbTransaction trans)
         {
-            using var connection = _context.CreateConnection();
-            try
-            {
+
                 var sql = " INSERT INTO ws_ticket_sparepart" +
                         "(ticket_no, sparepart_code, sparepart_name, product_name, qty, unit_line_no,uom,created_by,created_on,modified_by,modified_on " +
                         ")" +
                         "VALUES (@ticket_no, @sparepart_code, @sparepart_name, @product_name, @qty, @unit_line_no,@uom,@created_by,@created_on,@modified_by,@modified_on " +
                         ")";
-                var param = new Dictionary<string, object>
-            {
-                { "ticket_no", request.ticket_no ?? "" },
-                { "sparepart_code", request.sparepart_code ?? "" },
-                { "sparepart_name", request.sparepart_name ?? "" },
-                { "product_name", request.product_name ?? ""  },
-                { "qty", request.qty  },
-                { "unit_line_no", request.unit_line_no  },
-                { "uom", request.uom  },
-                { "created_by", request.created_by ??""},
-                { "created_on", request.created_on ?? null },
-                { "modified_by",null },
-                { "modified_on",null}
+                var param = new 
+                {
+                    ticket_no =  request.ticket_no ?? "",
+                    sparepart_code =  request.sparepart_code ?? "",
+                    sparepart_name =  request.sparepart_name ?? "",
+                    product_name =  request.product_name ?? "",
+                    qty =  request.qty,
+                    unit_line_no = request.unit_line_no,
+                    uom =  request.uom,
+                    created_by = request.created_by ??"",
+                    created_on =  request.created_on ?? null,
+                    modified_by = (string?)null ,
+                    modified_on = (DateTime?)null
 
-            };
-                await connection.ExecuteAsync(sql, param);
-            }
-            catch (Exception ex)
-            {
-                string s = ex.Message;
-            }
-
+                };
+                await conn.ExecuteAsync(sql, param, trans);
         }
-
         private string QueryListTicketSparepart(bool isList)
         {
 
@@ -451,20 +414,20 @@ namespace WS_CRM.Feature.Activity.dao
         private async Task<IEnumerable<ws_ticket_sparepart>> RepoGetAllTicketSparepart(string ticket_no)
         {
             using var connection = _context.CreateConnection();
-            var sql = QueryListTicketUnit(true);
+            var sql = QueryListTicketSparepart(true);
             string queryFilter = " where ticket_no=@ticket_no ";
             string sqlALL = sql + queryFilter;
-            var param = new Dictionary<string, object>
+            var param = new 
             {
-                { "ticket_no", ticket_no?? "" }
+                ticket_no =  ticket_no?? "" 
             };
             return await connection.QueryAsync<ws_ticket_sparepart>(sqlALL, param);
         }
 
         public async Task<List<ws_ticket_sparepart>> GetAllTicketSparepart(string ticket_no)
         {
-            var data = RepoGetAllTicketSparepart(ticket_no).Result.ToList();
-            return data;
+            var data = await RepoGetAllTicketSparepart(ticket_no);
+            return data.ToList();
         }
         public async Task<int> RepoGetTotalAllTicketSparepart(string ticket_no)
         {
@@ -472,9 +435,9 @@ namespace WS_CRM.Feature.Activity.dao
             var sql = QueryListTicketSparepart(false);
             string queryFilter = " where ticket_no=@ticket_no ";
             string sqlALL = sql + queryFilter;
-            var param = new Dictionary<string, object>
+            var param = new 
             {
-                { "ticket_no", ticket_no?? "" }
+                ticket_no =  ticket_no?? "" 
             };
             return await connection.QuerySingleOrDefaultAsync<int>(sqlALL, param);
         }
@@ -487,10 +450,10 @@ namespace WS_CRM.Feature.Activity.dao
                 modified_by = @modified_by,
                 modified_on = @modified_on
             WHERE ticket_no = @ticket_no and unit_line_no=@unit_line";
-            var param = new Dictionary<string, object>
+            var param = new 
             {
-                { "ticket_no", ticket_no ?? ""  },
-                { "unit_line",unit_line ?? null }
+                ticket_no =  ticket_no ?? "",
+                unit_line = unit_line ?? null 
 
             };
             await connection.ExecuteAsync(sql, param);
@@ -504,7 +467,7 @@ namespace WS_CRM.Feature.Activity.dao
             SET sparepart_name = @sparepart_name,
                 product_name = @product_name,
                 unit_line_no = @unit_line_no,
-                uom = @product_name,
+                uom = @uom,
                 qty = @qty, 
                 modified_by = @modified_by,
                 modified_on = @modified_on
@@ -526,12 +489,12 @@ namespace WS_CRM.Feature.Activity.dao
                 modified_on = @modified_on
             WHERE ticket_no = @ticket_no";
 
-            var param = new Dictionary<string, object>
+            var param = new 
             {
-                { "ticket_no", request.ticket_no ?? ""  },
-                { "status",request.status ?? "" },
-                { "modified_by", request.modified_by??"" },
-                { "modified_on", request.modified_on ?? null}
+                ticket_no =request.ticket_no ?? "",
+                status = request.status ?? "",
+                modified_by =request.modified_by??"" ,
+                modified_on =  request.modified_on ?? null
 
             };
             await connection.ExecuteAsync(sql, param);
@@ -547,11 +510,11 @@ namespace WS_CRM.Feature.Activity.dao
                 modified_on = @modified_on
             WHERE ticket_no = @ticket_no";
 
-            var param = new Dictionary<string, object>
+            var param = new 
             {
-                { "ticket_no", ticket_no ?? ""  },
-                { "modified_by","sys" },
-                { "modified_on", DateTime.UtcNow}
+                ticket_no = ticket_no ?? "",
+                modified_by = "sys",
+                modified_on =  DateTime.UtcNow
 
             };
             await connection.ExecuteAsync(sql, param);

@@ -1,20 +1,3 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Dapper;
 using WS_CRM.Helper;
 using WS_CRM.Feature.Activity.Model;
 using WS_CRM.Feature.Activity.dto;
@@ -249,18 +232,19 @@ namespace WS_CRM.Feature.Activity.dao {
             {
                 string ticketNoUpdate = await ticketNumbering();
                 request.ticket_header.ticket_no = ticketNoUpdate;
-                await _actDao.CreateTicketService(request.ticket_header);
+                await _actDao.CreateTicketService(request.ticket_header, _conn, trans);
 
+                var aiJobs = new List<AIJob>();
                 //unit detail
                 foreach(var unit in request.ticket_unit ?? [])
                 {
                     unit.ticket_no = ticketNoUpdate;
-                    await _actDao.CreateTicketUnit(unit);
+                    await _actDao.CreateTicketUnit(unit, _conn, trans);
 
-                     // 👉 enqueue AI classification
+                     // 👉 collect all complaint unit
                             if (!string.IsNullOrEmpty(unit.complaint_text))
                             {
-                                await _queue.EnqueueAsync(new AIJob
+                                aiJobs.Add(new AIJob
                                 {
                                     WarrantyNo = unit.warranty_no,
                                     UnitId = unit.unit_line_no,
@@ -273,11 +257,18 @@ namespace WS_CRM.Feature.Activity.dao {
                 foreach(var sparepart in request.ticket_sparepart ?? [])
                 {
                     sparepart.ticket_no = ticketNoUpdate;
-                    await _actDao.CreateTicketSparepart(sparepart);
+                    await _actDao.CreateTicketSparepart(sparepart, _conn, trans);
                 }
                 
                 //commit trans
                 await trans.CommitAsync();
+
+                // enqueue AFTER commit
+                foreach (var job in aiJobs)
+                {
+                    await _queue.EnqueueAsync(job);
+                }
+
                 return new APIResult{ is_ok = true, message = "Success"};
             }
             catch (Exception ex)
@@ -287,7 +278,7 @@ namespace WS_CRM.Feature.Activity.dao {
                 return new APIResult
                 {
                     is_ok = false,
-                    message = "Failed to submit data : " + ex.Message
+                    message = "Failed to submit data"
                 };
             }
         }
@@ -300,7 +291,7 @@ namespace WS_CRM.Feature.Activity.dao {
             var sequence = lastCount +1;
             var today = DateTime.UtcNow;
             number = $"TKT-{today:yyyy-MM-dd}-{sequence:D5}";
-
+            number = "TKT-2026-03-31-00001";
             return number;
         }
 
@@ -341,7 +332,7 @@ namespace WS_CRM.Feature.Activity.dao {
                     */
 
                     //mapping unit using LINQ
-                     var unitList = unit.Select(u => new CreateTicketUnit
+                     var unitList = unit.Select(u => new TicketUnitResponDetail
                      {
                         active = u.active,
                         product_name = u.product_name,
@@ -349,7 +340,10 @@ namespace WS_CRM.Feature.Activity.dao {
                         qty = u.qty,
                         unit_line_no = u.unit_line_no,
                         created_by = u.created_by,
-                        created_on = u.created_on
+                        created_on = u.created_on,
+                        category = u.ai_category,
+                        severity = u.ai_severity,
+                        user_complaint = u.complaint_text
                      }).ToList();
                     
                      var spList = sparepart.Select(sp=> new CreateTicketSparepart

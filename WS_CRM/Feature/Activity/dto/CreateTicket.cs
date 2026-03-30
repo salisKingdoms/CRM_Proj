@@ -54,7 +54,7 @@
         public string assign_to { get; set; }
         public string assign_name { get; set; }
         public string payment_method { get; set; }
-        public List<CreateTicketUnit> ticket_unit { get; set; }
+        public List<TicketUnitResponDetail> ticket_unit { get; set; }
         public List<CreateTicketSparepart> ticket_sparepart { get; set; }
         public CustomerRespon customer { get; set; }
     }
@@ -85,5 +85,19 @@
         public DateTime? UpdatedOn { get; set; }
     }
 
-    
+    public class TicketUnitResponDetail
+    {
+        public string ticket_no { get; set; }
+        public string sku_code { get; set; }
+        public string product_name { get; set; }
+        public int qty { get; set; }
+        public int unit_line_no { get; set; }
+        public string warranty_no { get; set; }
+        public bool active { get; set; }
+        public string created_by { get; set; }
+        public DateTime? created_on { get; set; }
+        public string category { get; set; }
+        public string severity { get; set; }
+        public string user_complaint { get; set; }
+    }
 }

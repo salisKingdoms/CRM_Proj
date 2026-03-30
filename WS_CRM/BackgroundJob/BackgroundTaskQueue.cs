@@ -8,7 +8,10 @@ namespace WS_CRM.BackgroundJob
 
         public BackgroundTaskQueue()
         {
-            _queue = Channel.CreateUnbounded<AIJob>();
+             _queue = Channel.CreateBounded<AIJob>(new BoundedChannelOptions(500)
+            {
+                FullMode = BoundedChannelFullMode.Wait
+            });
         }
 
         public async Task EnqueueAsync(AIJob job)
@@ -21,14 +24,5 @@ namespace WS_CRM.BackgroundJob
             return await _queue.Reader.ReadAsync(cancellationToken);
         }
 
-        //public async ValueTask QueueBackgroundWorkItemAsync(Func<Task> workItem)
-        //{
-        //    await _queue.Writer.WriteAsync(workItem);
-        //}
-
-        //public async ValueTask<Func<Task>> DequeueAsync(CancellationToken token)
-        //{
-        //    return await _queue.Reader.ReadAsync(token);
-        //}
     }
 }

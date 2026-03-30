@@ -2,11 +2,7 @@
 using WS_CRM.Helper;
 using WS_CRM.Config;
 using WS_CRM.Feature.Activity.Model;
-using System.Linq;
-using Dapper;
-using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Data;
 
 namespace WS_CRM.Feature.Activity.dao
 {
@@ -19,19 +15,19 @@ namespace WS_CRM.Feature.Activity.dao
         public Task DeleteWarrantyByWarrantyCode(string warrantyCode);
         public Task UpdateWarranty(ws_warranty param);
 
-        public Task CreateTicketService(CreateTicket request);
+        public Task CreateTicketService(CreateTicket request, IDbConnection conn, IDbTransaction trans);
         public Task<List<ws_ticket>> GetAllTicketHeader(GlobalFilter filter);
         public Task<int> RepoGetTotalAllTicket(GlobalFilter filter);
         public  Task UpdateTicketHeader(ws_ticket param);
 
-        public Task CreateTicketUnit(CreateTicketUnit request);
+        public Task CreateTicketUnit(CreateTicketUnit request, IDbConnection conn, IDbTransaction trans);
         public Task<int> CreateTicketUnitRetID(CreateTicketUnit request);
         public Task<List<ws_ticket_unit>> GetAllTicketUnit(string ticket_no);
         public Task<int> RepoGetTotalAllTicketUnit(string ticket_no);
         public Task DeleteTicketUnit(string ticket_no, int? unit_line);
         public Task UpdateTicketUnit(ws_ticket_unit param);
         public  Task<ws_ticket> GetTicketHeaderByTicketNo(string ticket_no);
-        public  Task CreateTicketSparepart(CreateTicketSparepart request);
+        public Task CreateTicketSparepart(CreateTicketSparepart request, IDbConnection conn, IDbTransaction trans);
         public  Task<List<ws_ticket_sparepart>> GetAllTicketSparepart(string ticket_no);
         public  Task<int> RepoGetTotalAllTicketSparepart(string ticket_no);
         public  Task DeleteTicketSparepart(string ticket_no, int? unit_line);
