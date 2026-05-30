@@ -7,8 +7,22 @@ using WS_CRM_Catalog.Feature.Product;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// if (builder.Environment.IsDevelopment())
+// {
+//     builder.Configuration.AddJsonFile("appsettings.json", optional: true);
+// }
+// else
+// {
+//     builder.Configuration.AddJsonFile("appsettings.Docker.json", optional: true);
+// }
+
 // add services to DI container
 {
     var services = builder.Services;
@@ -58,11 +72,13 @@ var app = builder.Build();
 //}
 
 //app.Run();
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI();
+// }
+ app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
