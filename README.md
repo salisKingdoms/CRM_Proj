@@ -1,6 +1,6 @@
 # 🚀 CRM Warranty Microservices Platform
 
-A backend platform built with **.NET 8 Web API** for managing warranty claims, customers, employees, products, and spare parts.
+A backend platform built with **.NET 8 Web API** for managing warranty claims, customers, employees, and products.
 
 The system is designed using a **Microservices Architecture**, where each service owns its own API, business logic, and PostgreSQL database. This approach allows services to be developed, maintained, and deployed independently.
 
@@ -217,7 +217,6 @@ This approach helps maintain predictable AI responses while supporting support t
 ## 📦 WS_Catalog
 
 * Product Management
-* Spare Part Management
 * Product Lookup
 
 ## 👤 WS_Customer
