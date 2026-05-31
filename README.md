@@ -265,6 +265,9 @@ This approach helps maintain predictable AI responses while supporting support t
 * Visual Studio Code
 * Git
 * GitHub
+* Docker Containerization (terminal): 
+  docker compose build --no-cache
+  docker compose up
 
 ---
 
@@ -284,6 +287,7 @@ This approach helps maintain predictable AI responses while supporting support t
 * Controlled AI Classification Workflow
 * Structured JSON AI Responses
 * Separation of Business Logic and API Layer
+* Docker Containerization
 
 ---
 
@@ -304,7 +308,6 @@ Examples:
 # 🔮 Future Improvements
 
 * API Gateway (YARP / Ocelot)
-* Docker Containerization
 * CI/CD Pipeline
 * Centralized Logging
 * Distributed Tracing
