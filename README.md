@@ -265,10 +265,13 @@ This approach helps maintain predictable AI responses while supporting support t
 * Visual Studio Code
 * Git
 * GitHub
-* Docker Containerization (terminal):                                                                                 
+* Docker Containerization (terminal):
+  ```
   docker compose down
   docker compose build --no-cache        
   docker compose up
+  ```                                                                              
+  
 
 ---
 
